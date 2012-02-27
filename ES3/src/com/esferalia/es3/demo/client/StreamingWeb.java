@@ -3,11 +3,11 @@ package com.esferalia.es3.demo.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.esferalia.es3.demo.client.dto.CustomNode;
+import com.esferalia.es3.demo.client.dto.FoldersAndFilesTree;
 import com.esferalia.es3.demo.client.event.PlaySelectedEvent;
 import com.esferalia.es3.demo.client.event.PlaySelectedEventHandler;
 import com.esferalia.es3.demo.client.flowplayer.FlowPlayer;
-import com.esferalia.es3.demo.client.tree.CustomNode;
-import com.esferalia.es3.demo.client.tree.FoldersAndFilesTree;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -33,6 +33,8 @@ import fr.hd3d.html5.video.client.VideoSource;
 import fr.hd3d.html5.video.client.VideoWidget;
 
 public class StreamingWeb implements EntryPoint {
+	
+	private final String BASE_PATH = "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\mission";
 
 	private Images images;
 	private RootPanel rootPanel;
@@ -54,11 +56,12 @@ public class StreamingWeb implements EntryPoint {
 	private VideoWidget videoPlayer;
 	private FlowPlayer fp;
 	private Image pic;
+	private Label footerLabel;
 	
 	private GreetingServiceAsync greetingSvc = GWT.create(GreetingService.class);
 
 	final HandlerManager eventBus = new HandlerManager(null);
-	private Label footerLabel;
+	
 
 	@Override
 	public void onModuleLoad() {
@@ -303,7 +306,7 @@ public class StreamingWeb implements EntryPoint {
 
 		// Make the call to the stock price service.
 		// FIXME directoryPath
-		greetingSvc.greetServer("C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public", callback);
+		greetingSvc.greetServer(BASE_PATH, callback);
 //		greetingSvc.greetServer("/srv/www/lighttpd/public", callback);
 	}
 	

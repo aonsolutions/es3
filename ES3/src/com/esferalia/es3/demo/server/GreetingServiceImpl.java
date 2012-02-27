@@ -4,8 +4,8 @@ import java.io.File;
 //import java.util.Iterator;
 
 import com.esferalia.es3.demo.client.GreetingService;
-import com.esferalia.es3.demo.client.tree.CustomNode;
-import com.esferalia.es3.demo.client.tree.FolderOrFile;
+import com.esferalia.es3.demo.client.dto.CustomNode;
+import com.esferalia.es3.demo.client.dto.FolderOrFile;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 

@@ -15,10 +15,18 @@
     <servlet-name>greetServlet</servlet-name>
     <servlet-class>com.esferalia.es3.demo.server.GreetingServiceImpl</servlet-class>
   </servlet>
-  
-  <servlet-mapping>
+    <servlet-mapping>
     <servlet-name>greetServlet</servlet-name>
     <url-pattern>/es3/greet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+  	<servlet-name>DatabaseService</servlet-name>
+  	<servlet-class>com.esferalia.es3.demo.server.DatabaseServiceImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>DatabaseService</servlet-name>
+  	<url-pattern>/es3/DatabaseService</url-pattern>
   </servlet-mapping>
   
 </web-app>
