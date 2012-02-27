@@ -1,0 +1,2 @@
+serviceClass: com.esferalia.es3.demo.client.DatabaseService
+path: 004DF21B185588EC2F0A0F35FF04A75E.gwt.rpc

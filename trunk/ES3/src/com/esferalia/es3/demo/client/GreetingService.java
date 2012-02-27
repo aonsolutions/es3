@@ -1,6 +1,6 @@
 package com.esferalia.es3.demo.client;
 
-import com.esferalia.es3.demo.client.tree.CustomNode;
+import com.esferalia.es3.demo.client.dto.CustomNode;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
