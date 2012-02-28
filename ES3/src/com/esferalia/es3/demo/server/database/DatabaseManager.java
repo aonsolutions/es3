@@ -149,7 +149,7 @@ public class DatabaseManager extends DatabaseConnection {
 		}
 	}
 	
-	public void insertFile(Integer identMission, String description, Date date, String MD5) throws SQLException {
+	public void insertFile(Integer identMission, String name, String description, Date date, String MD5) throws SQLException {
 		Statement stmt = null;
 		
 		int mission = identMission.intValue();
@@ -161,6 +161,7 @@ public class DatabaseManager extends DatabaseConnection {
 					"INSERT INTO `file` (" +
 //					"  `id`," +
 					"  `mission`," +
+					"  `name`," +
 					"  `description`," +
 					"  `date_time`," +
 					"  `md5`" +
@@ -168,6 +169,7 @@ public class DatabaseManager extends DatabaseConnection {
 					"VALUE (" +
 //					"  :id," +
 					"  '" + mission + "'," +
+					"  '" + name + "'," +
 					"  '" + description + "'," +
 					"  '" + date_time + "'," +
 					"  '" + MD5 +

@@ -7,8 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 
-import com.esferalia.es3.demo.client.dto.CustomNode;
 import com.esferalia.es3.demo.client.dto.FolderOrFile;
+import com.esferalia.es3.demo.client.tree.CustomNode;
 
 public class DirectoryManager {
 	
