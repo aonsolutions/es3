@@ -39,7 +39,7 @@ public class DatabaseServiceImpl extends RemoteServiceServlet implements
 	public void insertFile(File file) throws DatabaseException{
 		try {
 			dbmanager.getConnection();
-			dbmanager.insertFile(file.getMission(), file.getDescription(), file.getDate_time(), file.getMD5());
+			dbmanager.insertFile(file.getMission(), file.getName(), file.getDescription(), file.getDate_time(), file.getMD5());
 			dbmanager.closeConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
