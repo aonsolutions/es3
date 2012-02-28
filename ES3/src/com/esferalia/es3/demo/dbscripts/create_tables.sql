@@ -19,6 +19,7 @@ CREATE TABLE `mission` (
 CREATE TABLE `file` (
   `id` int(4) NOT NULL auto_increment COMMENT 'Identificador unico del archivo',
   `mission` int(4) NOT NULL COMMENT 'Identificador unico de la mision',
+  `name` varchar(64) default NULL COMMENT 'Nombre original del archivo',
   `description` TEXT collate latin1_spanish_ci default NULL COMMENT 'Descripcion del archivo',
   `date_time` DATETIME NOT NULL COMMENT 'Fecha de inicio del archivo',
   `md5` varchar(128) NOT NULL COMMENT 'MD5 del archivo',
