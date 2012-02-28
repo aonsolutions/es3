@@ -3,11 +3,19 @@ package com.esferalia.es3.demo.client;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.esferalia.es3.demo.client.dto.CustomNode;
-import com.esferalia.es3.demo.client.dto.FoldersAndFilesTree;
+import com.esferalia.es3.demo.client.dto.File;
+import com.esferalia.es3.demo.client.dto.Mission;
+import com.esferalia.es3.demo.client.event.AddFileToMissionEvent;
+import com.esferalia.es3.demo.client.event.AddFileToMissionEventHandler;
+import com.esferalia.es3.demo.client.event.CreateMissionEvent;
+import com.esferalia.es3.demo.client.event.CreateMissionEventHandler;
 import com.esferalia.es3.demo.client.event.PlaySelectedEvent;
 import com.esferalia.es3.demo.client.event.PlaySelectedEventHandler;
+import com.esferalia.es3.demo.client.event.SelectedMissionEvent;
+import com.esferalia.es3.demo.client.event.SelectedMissionEventHandler;
 import com.esferalia.es3.demo.client.flowplayer.FlowPlayer;
+import com.esferalia.es3.demo.client.tree.CustomNode;
+import com.esferalia.es3.demo.client.tree.FoldersAndFilesTree;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -28,12 +36,14 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Button;
 
 import fr.hd3d.html5.video.client.VideoSource;
 import fr.hd3d.html5.video.client.VideoWidget;
 
 public class StreamingWeb implements EntryPoint {
 	
+	// FIXME directoryPath
 	private final String BASE_PATH = "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\mission";
 
 	private Images images;
@@ -42,6 +52,7 @@ public class StreamingWeb implements EntryPoint {
 	private HorizontalPanel northPanel;
 	private HorizontalPanel dockCentrePanel;
 	private SplitLayoutPanel splitLayoutPanel;
+	private VerticalPanel splitVerticalPanel;
 	private ScrollPanel scrollPanel;
 	private VerticalPanel splitCentrePanel;
 	private HorizontalPanel southPanel;
@@ -52,6 +63,7 @@ public class StreamingWeb implements EntryPoint {
 	private DisclosurePanel disclosureImage;
 	private Image logo;
 	private Label titleLabel;
+	private Button crearButton;
 	private FoldersAndFilesTree foldersFilesTree;
 	private VideoWidget videoPlayer;
 	private FlowPlayer fp;
@@ -59,10 +71,10 @@ public class StreamingWeb implements EntryPoint {
 	private Label footerLabel;
 	
 	private GreetingServiceAsync greetingSvc = GWT.create(GreetingService.class);
+	private DatabaseServiceAsync databaseService = GWT.create(DatabaseService.class);
 
 	final HandlerManager eventBus = new HandlerManager(null);
 	
-
 	@Override
 	public void onModuleLoad() {
 		
@@ -72,6 +84,8 @@ public class StreamingWeb implements EntryPoint {
 		
 		initializeEventBus();
 		
+		initializeMissions();
+		
 		initializeHTML5video();
 		
 		initializeFlowplayer();
@@ -80,6 +94,7 @@ public class StreamingWeb implements EntryPoint {
 		
 		treeService();
 	}
+
 
 	private void initializeEventBus() {
 		eventBus.addHandler(PlaySelectedEvent.TYPE, new PlaySelectedEventHandler(){
@@ -149,6 +164,93 @@ public class StreamingWeb implements EntryPoint {
 				}
 			}
 		});
+		
+		eventBus.addHandler(CreateMissionEvent.TYPE, new CreateMissionEventHandler(){
+
+			@Override
+			public void onCreateMission(CreateMissionEvent event) {
+				createMission(event.getMision());
+			}
+
+			private void createMission(Mission mission) {
+				// Initialize the service proxy.
+				if (databaseService == null) {
+					databaseService = GWT.create(DatabaseService.class);
+				}
+
+				// Set up the callback object.
+				AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.setTitle("ERROR: No se ha podido crear la misión en el servidor");
+						popup.setAutoHideEnabled(true);
+						popup.setGlassEnabled(true);
+						popup.center();
+						popup.show();
+					}
+
+					@Override
+					public void onSuccess(Void result) {
+						// IDEA ¿Después de crear misión, mostrar AddFileToMission?
+						treeService();
+					}
+				};
+
+				// Make the call to the database service.
+				databaseService.insertMission(mission, callback);
+			}
+		});
+		
+		eventBus.addHandler(SelectedMissionEvent.TYPE, new SelectedMissionEventHandler(){
+
+			@Override
+			public void onSelectedMission(SelectedMissionEvent event) {
+				AddFileToMissionWidget addFileToMissionWidget = new AddFileToMissionWidget(event.getName(), eventBus);
+				addFileToMissionWidget.setGlassEnabled(true);
+				addFileToMissionWidget.center();
+				addFileToMissionWidget.show();
+			}
+		});
+		
+		eventBus.addHandler(AddFileToMissionEvent.TYPE, new AddFileToMissionEventHandler(){
+
+			@Override
+			public void onAddFileToMission(AddFileToMissionEvent event) {
+				addFileToMission(event.getFile());
+			}
+
+			private void addFileToMission(File file) {
+				// Initialize the service proxy.
+				if (databaseService == null) {
+					databaseService = GWT.create(DatabaseService.class);
+				}
+
+				// Set up the callback object.
+				AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.setTitle("ERROR: No se ha podido añadir el archivo a la misión en el servidor");
+						popup.setAutoHideEnabled(true);
+						popup.setGlassEnabled(true);
+						popup.center();
+						popup.show();
+					}
+
+					@Override
+					public void onSuccess(Void result) {
+						// IDEA ¿Qué mostrar después de insertar archivo?
+						treeService();
+					}
+				};
+
+				// Make the call to the database service.
+				databaseService.insertFile(file, callback);
+			}
+		});
 	}
 
 	private void initializeBody() {
@@ -174,8 +276,16 @@ public class StreamingWeb implements EntryPoint {
 		dockCentrePanel.add(splitLayoutPanel);
 		splitLayoutPanel.setSize("1200px", "800px");
 		
+		splitVerticalPanel = new VerticalPanel();
+		splitVerticalPanel.setSpacing(10);
+		splitLayoutPanel.addWest(splitVerticalPanel, 250.0);
+		
+		crearButton = new Button("Crear misión");
+		crearButton.setText("Crear misión");
+		splitVerticalPanel.add(crearButton);
+		
 		scrollPanel = new ScrollPanel();
-		splitLayoutPanel.addWest(scrollPanel, 250.0);
+		splitVerticalPanel.add(scrollPanel);
 		
 		splitCentrePanel = new VerticalPanel();
 		splitLayoutPanel.add(splitCentrePanel);
@@ -233,12 +343,23 @@ public class StreamingWeb implements EntryPoint {
 		northPanel.add(logo);
 		logo.setSize("100px", "100px");
 		
-		titleLabel = new Label("Streaming Player");
+		titleLabel = new Label("ES3 - Electronic Signal Surveillance System");
 		titleLabel.setStyleName("h1");
 		titleLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		northPanel.add(titleLabel);
 		titleLabel.setWidth("668px");
 		northPanel.setCellHorizontalAlignment(titleLabel, HasHorizontalAlignment.ALIGN_CENTER);
+	}
+	
+	private void initializeMissions() {
+		crearButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				CreateMissionWidget createMissionWidget = new CreateMissionWidget(eventBus);
+				createMissionWidget.setGlassEnabled(true);
+				createMissionWidget.center();
+				createMissionWidget.show();
+			}
+		});
 	}
 	
 	private void initializeHTML5video() {
@@ -251,6 +372,13 @@ public class StreamingWeb implements EntryPoint {
 //		verticalPanel_3.add(videoPlayer);
 //		verticalPanel_3.setCellHorizontalAlignment(videoPlayer, HasHorizontalAlignment.ALIGN_CENTER);
 		disclosureHTML.setContent(videoPlayer);
+		disclosureHTML.addDomHandler(new ContextMenuHandler(){
+			@Override
+			public void onContextMenu(ContextMenuEvent event) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		}, ContextMenuEvent.getType());
 	}
 
 	private void initializeFlowplayer() {
@@ -263,6 +391,13 @@ public class StreamingWeb implements EntryPoint {
 //		verticalPanel_6.add(fp);
 //		verticalPanel_6.setCellHorizontalAlignment(fp, HasHorizontalAlignment.ALIGN_CENTER);
 		disclosureFlow.setContent(fp);
+		disclosureFlow.addDomHandler(new ContextMenuHandler(){
+			@Override
+			public void onContextMenu(ContextMenuEvent event) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		}, ContextMenuEvent.getType());
 	}
 
 	private void initializeImageViewer() {
@@ -279,7 +414,7 @@ public class StreamingWeb implements EntryPoint {
 		disclosureImage.setContent(pic);
 	}
 	
-	private void treeService() {
+	public void treeService() {
 		// Initialize the service proxy.
 		if (greetingSvc == null) {
 			greetingSvc = GWT.create(GreetingService.class);
@@ -304,13 +439,14 @@ public class StreamingWeb implements EntryPoint {
 			}
 		};
 
-		// Make the call to the stock price service.
+		// Make the call to the greeting service.
 		// FIXME directoryPath
 		greetingSvc.greetServer(BASE_PATH, callback);
 //		greetingSvc.greetServer("/srv/www/lighttpd/public", callback);
 	}
 	
 	private void initializeTree(CustomNode folderTree) {
+		scrollPanel.clear();
 		foldersFilesTree = new FoldersAndFilesTree(eventBus, folderTree);
 		scrollPanel.add(foldersFilesTree);
 		scrollPanel.onResize();
@@ -329,6 +465,13 @@ public class StreamingWeb implements EntryPoint {
 		scroll.setSize("1000px", "500px");
 		scroll.add(pic);
 		DecoratedPopupPanel popup = new DecoratedPopupPanel();
+		popup.addDomHandler(new ContextMenuHandler(){
+			@Override
+			public void onContextMenu(ContextMenuEvent event) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		}, ContextMenuEvent.getType());
 		popup.add(scroll);
 		popup.setAutoHideEnabled(true);
 		popup.setGlassEnabled(true);

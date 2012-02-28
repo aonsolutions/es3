@@ -1,11 +1,13 @@
 package com.esferalia.es3.demo.client.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class File {
+public class File implements Serializable{
 	
 	private int id;
 	private int mission;
+	private String name;
 	private String description;
 	private Date date_time;
 	private String MD5;
@@ -25,6 +27,14 @@ public class File {
 
 	public void setMission(int mission) {
 		this.mission = mission;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getDescription() {

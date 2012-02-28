@@ -1,8 +1,9 @@
 package com.esferalia.es3.demo.client.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Mission {
+public class Mission implements Serializable{
 	
 	private int id;
 	private String name;
