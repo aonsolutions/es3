@@ -80,7 +80,7 @@ public class Player
     }
 
 
-    // TODO List of FlowPlayer Tasks
+    // OLD List of FlowPlayer Tasks
     // setPlaylist();
     // getConfig(copy);
     // getFlashParams();
