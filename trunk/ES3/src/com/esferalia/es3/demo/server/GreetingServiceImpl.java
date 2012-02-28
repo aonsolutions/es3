@@ -4,8 +4,8 @@ import java.io.File;
 //import java.util.Iterator;
 
 import com.esferalia.es3.demo.client.GreetingService;
-import com.esferalia.es3.demo.client.dto.CustomNode;
 import com.esferalia.es3.demo.client.dto.FolderOrFile;
+import com.esferalia.es3.demo.client.tree.CustomNode;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -17,6 +17,9 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		GreetingService {
 
 	private CustomNode parent;
+	
+	private final String TEMP_DIR = "C:\\temp\\";
+	private final String DEST_PATH = "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\mission\\";
 	
 	public CustomNode greetServer(String path) throws IllegalArgumentException {
 		parent = new CustomNode();
@@ -45,6 +48,19 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 				parent.add(node);
 			}
 		}
+	}
+	
+	
+	public void changeFileDirectory(com.esferalia.es3.demo.client.dto.File file){
+		// Archivo a mover 
+		 File archivo= new File(TEMP_DIR + file.getName()); 
+		// Directorio destino
+		 File dir = new File(DEST_PATH + file.getMission() + "\\"); 
+		// Mover el archivo a otro directorio
+		// TODO Cambiar el nombre al archivo por el 'id'
+		// boolean moved = archivo.renameTo(new File(dir, file.getId()));
+		boolean moved = archivo.renameTo(new File(dir, archivo.getName()));
+		if (!moved) System.out.println("No se ha podido mover el archivo");
 	}
 
 /*	private void print(CustomNode tn) {
