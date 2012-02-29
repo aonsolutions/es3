@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 
+import org.apache.commons.io.FileUtils;
+
 import com.esferalia.es3.demo.client.dto.FolderOrFile;
 import com.esferalia.es3.demo.client.tree.CustomNode;
 
@@ -18,7 +20,7 @@ public class DirectoryManager {
 	public DirectoryManager() {
 	}
 
-	public void listAllFiles(String directory, CustomNode parent) {
+	public void listAllFiles(String directory, CustomNode parent) throws IOException {
 		// list all the files in the directory
 		File[] children = new File(directory).listFiles();
 		// loop through each
@@ -53,7 +55,7 @@ public class DirectoryManager {
 			System.out.println(tn.getUserObject().getAbsolutePath());
 	}
 	
-	public void createMission(int id){
+	public void createMission(int id) throws IOException{
 		String stringPath = BASE_PATH + String.valueOf(id);
 		
 		// MÉTODO 1 - Path y Files
@@ -70,6 +72,17 @@ public class DirectoryManager {
 			System.out.println("Se ha creado directorio");
 		else
 			System.out.println("No se ha podido crear el directorio");*/
+	}
+	
+	public void deleteMision(int id) throws IOException{
+		String stringPath = BASE_PATH + String.valueOf(id);
+		try{
+			File directorio = new File(stringPath);
+			FileUtils.cleanDirectory(directorio);
+			FileUtils.deleteDirectory(directorio);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 }

@@ -25,7 +25,7 @@ CREATE TABLE `file` (
   `md5` varchar(128) NOT NULL COMMENT 'MD5 del archivo',
   PRIMARY KEY  (`id`),
   KEY `IDX_FILE_MISSION` (`mission`),
-  CONSTRAINT `FK_FILE_MISSION` FOREIGN KEY (`mission`) REFERENCES `mission` (`id`)
+  CONSTRAINT `FK_FILE_MISSION` FOREIGN KEY (`mission`) REFERENCES `mission` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_spanish_ci COMMENT='Archivo';
 
 #

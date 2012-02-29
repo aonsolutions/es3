@@ -20,7 +20,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 
 import com.google.gwt.event.shared.HandlerManager;
 
-public class CreateMissionWidget extends DialogBox{
+public class UpdateMissionWidget extends DialogBox{
 
 	private VerticalPanel mainPanel;
 	private Label titleLabel;
@@ -32,12 +32,12 @@ public class CreateMissionWidget extends DialogBox{
 	private Button okButton;
 	private Button cancelButton;
 	
-	public CreateMissionWidget(final HandlerManager eventbus){
+	public UpdateMissionWidget(final HandlerManager eventbus, final Mission oldMission){
 		mainPanel = new VerticalPanel();
 		mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		mainPanel.setSpacing(10);
 		
-		titleLabel = new Label("Crear nueva misión");
+		titleLabel = new Label("Modificar la misión " + oldMission.getName() + " con ID " + oldMission.getId());
 		mainPanel.add(titleLabel);
 		
 		HorizontalPanel horizontalPanel = new HorizontalPanel();
@@ -52,6 +52,7 @@ public class CreateMissionWidget extends DialogBox{
 		verticalPanel.add(lblNewLabel);
 		
 		nombreTextBox = new TextBox();
+		nombreTextBox.setText(oldMission.getName());
 		nombreTextBox.setMaxLength(64);
 		verticalPanel.add(nombreTextBox);
 		
@@ -59,6 +60,7 @@ public class CreateMissionWidget extends DialogBox{
 		verticalPanel.add(lblNewLabel_1);
 		
 		aliasTextBox = new TextBox();
+		aliasTextBox.setText(oldMission.getAlias());
 		aliasTextBox.setMaxLength(32);
 		verticalPanel.add(aliasTextBox);
 		
@@ -66,6 +68,7 @@ public class CreateMissionWidget extends DialogBox{
 		verticalPanel.add(lblNewLabel_2);
 		
 		descriptionTextArea = new TextArea();
+		descriptionTextArea.setText(oldMission.getDescription());
 		verticalPanel.add(descriptionTextArea);
 		
 		VerticalPanel verticalPanel_1 = new VerticalPanel();
@@ -77,6 +80,7 @@ public class CreateMissionWidget extends DialogBox{
 		
 	    // Create a basic date picker
 		startDatePicker = new DateBox();
+		startDatePicker.setValue(oldMission.getStart_date());
 		startDatePicker.setFormat(new DefaultFormat(com.google.gwt.i18n.client.DateTimeFormat.getFormat("dd/MM/yyyy")));
 
 	    // Combine the widgets into a panel and return them
@@ -93,6 +97,7 @@ public class CreateMissionWidget extends DialogBox{
 		
 	    // Create a basic date picker
 		endDatePicker = new DateBox();
+		endDatePicker.setValue(oldMission.getEnd_date());
 		endDatePicker.setFormat(new DefaultFormat(com.google.gwt.i18n.client.DateTimeFormat.getFormat("dd/MM/yyyy")));
 
 	    // Combine the widgets into a panel and return them
@@ -108,16 +113,17 @@ public class CreateMissionWidget extends DialogBox{
 		okButton = new Button("Aceptar");
 		okButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				MissionEvent createMissionEvent = new MissionEvent();
-				Mission mision = new Mission();
-				mision.setName(nombreTextBox.getText());
-				mision.setAlias(aliasTextBox.getText());
-				mision.setDescription(descriptionTextArea.getText());
-				mision.setStart_date(startDatePicker.getValue());
-				mision.setEnd_date(endDatePicker.getValue());
-				createMissionEvent.setAccion(MissionAction.CREATE);
-				createMissionEvent.setMision(mision);
-				eventbus.fireEvent(createMissionEvent);
+				MissionEvent updateMissionEvent = new MissionEvent();
+				Mission updatedMision = new Mission();
+				updatedMision.setId(oldMission.getId());
+				updatedMision.setName(nombreTextBox.getText());
+				updatedMision.setAlias(aliasTextBox.getText());
+				updatedMision.setDescription(descriptionTextArea.getText());
+				updatedMision.setStart_date(startDatePicker.getValue());
+				updatedMision.setEnd_date(endDatePicker.getValue());
+				updateMissionEvent.setAccion(MissionAction.UPDATE);
+				updateMissionEvent.setMision(updatedMision);
+				eventbus.fireEvent(updateMissionEvent);
 				hide();
 			}
 		});

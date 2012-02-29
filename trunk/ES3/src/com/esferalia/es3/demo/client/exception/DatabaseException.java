@@ -1,4 +1,4 @@
-package com.esferalia.es3.demo.client;
+package com.esferalia.es3.demo.client.exception;
 
 import java.io.Serializable;
 

@@ -7,8 +7,8 @@ import com.esferalia.es3.demo.client.dto.File;
 import com.esferalia.es3.demo.client.dto.Mission;
 import com.esferalia.es3.demo.client.event.AddFileToMissionEvent;
 import com.esferalia.es3.demo.client.event.AddFileToMissionEventHandler;
-import com.esferalia.es3.demo.client.event.CreateMissionEvent;
-import com.esferalia.es3.demo.client.event.CreateMissionEventHandler;
+import com.esferalia.es3.demo.client.event.MissionEvent;
+import com.esferalia.es3.demo.client.event.MissionEventHandler;
 import com.esferalia.es3.demo.client.event.PlaySelectedEvent;
 import com.esferalia.es3.demo.client.event.PlaySelectedEventHandler;
 import com.esferalia.es3.demo.client.event.SelectedMissionEvent;
@@ -95,7 +95,6 @@ public class StreamingWeb implements EntryPoint {
 		treeService();
 	}
 
-
 	private void initializeEventBus() {
 		eventBus.addHandler(PlaySelectedEvent.TYPE, new PlaySelectedEventHandler(){
 			@Override
@@ -165,11 +164,21 @@ public class StreamingWeb implements EntryPoint {
 			}
 		});
 		
-		eventBus.addHandler(CreateMissionEvent.TYPE, new CreateMissionEventHandler(){
+		eventBus.addHandler(MissionEvent.TYPE, new MissionEventHandler(){
 
 			@Override
-			public void onCreateMission(CreateMissionEvent event) {
-				createMission(event.getMision());
+			public void onMission(MissionEvent event) {
+				switch(event.getAccion()){
+				case CREATE:
+					createMission(event.getMision());
+					break;
+				case UPDATE:
+					updateMission(event.getMision());
+					break;
+				case DELETE:
+					deleteMission(event.getMision().getId());
+					break;
+				}
 			}
 
 			private void createMission(Mission mission) {
@@ -184,6 +193,7 @@ public class StreamingWeb implements EntryPoint {
 					@Override
 					public void onFailure(Throwable caught) {
 						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.add(new Label("ERROR: No se ha podido crear la misión en el servidor"));
 						popup.setTitle("ERROR: No se ha podido crear la misión en el servidor");
 						popup.setAutoHideEnabled(true);
 						popup.setGlassEnabled(true);
@@ -201,16 +211,128 @@ public class StreamingWeb implements EntryPoint {
 				// Make the call to the database service.
 				databaseService.insertMission(mission, callback);
 			}
+			
+			private void updateMission(Mission mission) {
+				// Initialize the service proxy.
+				if (databaseService == null) {
+					databaseService = GWT.create(DatabaseService.class);
+				}
+
+				// Set up the callback object.
+				AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.add(new Label("ERROR: No se ha podido actualizar la misión en la base de datos"));
+						popup.setTitle("ERROR: No se ha podido actualizar la misión en la base de datos");
+						popup.setAutoHideEnabled(true);
+						popup.setGlassEnabled(true);
+						popup.center();
+						popup.show();
+					}
+
+					@Override
+					public void onSuccess(Void result) {
+						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.add(new Label("Misión actualizada correctamente"));
+						popup.setTitle("Misión actualizada correctamente");
+						popup.setAutoHideEnabled(true);
+						popup.setGlassEnabled(true);
+						popup.center();
+						popup.show();
+					}
+				};
+
+				// Make the call to the database service.
+				databaseService.updateMission(mission, callback);
+			}
+
+			private void deleteMission(int id) {
+				// Initialize the service proxy.
+				if (databaseService == null) {
+					databaseService = GWT.create(DatabaseService.class);
+				}
+
+				// Set up the callback object.
+				AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.add(new Label("ERROR: No se ha podido borrar la misión"));
+						popup.setTitle("ERROR: No se ha podido borrar la misión");
+						popup.setAutoHideEnabled(true);
+						popup.setGlassEnabled(true);
+						popup.center();
+						popup.show();
+					}
+
+					@Override
+					public void onSuccess(Void result) {
+						treeService();
+					}
+				};
+
+				// Make the call to the database service.
+				databaseService.deleteMission(id, callback);
+			}
+			
 		});
 		
 		eventBus.addHandler(SelectedMissionEvent.TYPE, new SelectedMissionEventHandler(){
 
 			@Override
 			public void onSelectedMission(SelectedMissionEvent event) {
-				AddFileToMissionWidget addFileToMissionWidget = new AddFileToMissionWidget(event.getName(), eventBus);
+				// TODO Código de 'Borrar la misión al hacer clic sobre ella en el árbol'
+				DeleteMissionWidget deleteMissionWidget = new DeleteMissionWidget(eventBus, Integer.parseInt(event.getName()));
+				deleteMissionWidget.setGlassEnabled(true);
+				deleteMissionWidget.center();
+				deleteMissionWidget.show();
+				
+				// TODO Código de 'Actualizar la misión al hacer clic sobre ella en el árbol'
+				// Junto con el procedimiento privado 'selectMission()' de más abajo
+				// selectMission(event.getName());
+				
+				// TODO Código de 'Añadir archivo al hacer clic sobre una misión en el árbol'
+/*				AddFileToMissionWidget addFileToMissionWidget = new AddFileToMissionWidget(event.getName(), eventBus);
 				addFileToMissionWidget.setGlassEnabled(true);
 				addFileToMissionWidget.center();
-				addFileToMissionWidget.show();
+				addFileToMissionWidget.show();*/
+			}
+			
+			// XXX Despúes de obtener los datos de la misión, mostramos la interfaz de actualización 
+			private void selectMission(String name) {
+				// Initialize the service proxy.
+				if (databaseService == null) {
+					databaseService = GWT.create(DatabaseService.class);
+				}
+
+				// Set up the callback object.
+				AsyncCallback<Mission> callback = new AsyncCallback<Mission>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.add(new Label("ERROR: No se ha podido acceder a la base de datos"));
+						popup.setTitle("ERROR: No se ha podido acceder a la base de datos");
+						popup.setAutoHideEnabled(true);
+						popup.setGlassEnabled(true);
+						popup.center();
+						popup.show();
+					}
+
+					@Override
+					public void onSuccess(Mission result) {
+						UpdateMissionWidget updateMissionWidget = new UpdateMissionWidget(eventBus, result);
+						updateMissionWidget.setGlassEnabled(true);
+						updateMissionWidget.center();
+						updateMissionWidget.show();
+					}
+				};
+
+				// Make the call to the database service.
+				databaseService.selectMission(Integer.valueOf(name), callback);
 			}
 		});
 		
@@ -233,6 +355,7 @@ public class StreamingWeb implements EntryPoint {
 					@Override
 					public void onFailure(Throwable caught) {
 						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.add(new Label("ERROR: No se ha podido añadir el archivo a la misión en el servidor"));
 						popup.setTitle("ERROR: No se ha podido añadir el archivo a la misión en el servidor");
 						popup.setAutoHideEnabled(true);
 						popup.setGlassEnabled(true);
@@ -414,7 +537,7 @@ public class StreamingWeb implements EntryPoint {
 		disclosureImage.setContent(pic);
 	}
 	
-	public void treeService() {
+	private void treeService() {
 		// Initialize the service proxy.
 		if (greetingSvc == null) {
 			greetingSvc = GWT.create(GreetingService.class);
@@ -431,6 +554,7 @@ public class StreamingWeb implements EntryPoint {
 			@Override
 			public void onFailure(Throwable caught) {
 				DecoratedPopupPanel popup = new DecoratedPopupPanel();
+				popup.add(new Label("ERROR: No se han podido obtener los recursos del servidor"));
 				popup.setTitle("ERROR: No se han podido obtener los recursos del servidor");
 				popup.setAutoHideEnabled(true);
 				popup.setGlassEnabled(true);
@@ -481,7 +605,8 @@ public class StreamingWeb implements EntryPoint {
 
 	private void errorFileFormatPopUp() {
 		DecoratedPopupPanel popup = new DecoratedPopupPanel();
-		popup.add(new Image("es3/pics/pantallazo.png"));
+		popup.add(new Label("ERROR: El formato del archivo seleccionado no se puede reproducir"));
+		popup.setTitle("ERROR: El formato del archivo seleccionado no se puede reproducir");
 		popup.setAutoHideEnabled(true);
 		popup.setGlassEnabled(true);
 		popup.center();

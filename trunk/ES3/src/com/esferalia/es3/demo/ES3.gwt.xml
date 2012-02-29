@@ -17,12 +17,10 @@
 	<inherits name='fr.hd3d.html5.video.HTML5Video' />
 
 	<!-- Specify the app entry point class.                         -->
-	<!-- <entry-point class='com.esferalia.es3.demo.client.ES3' />  -->
-	<!-- <entry-point class="com.esferalia.es3.demo.client.StreamingWeb" />  -->
-	<entry-point class="com.esferalia.es3.demo.client.TestBD" />
-
+	<entry-point class="com.esferalia.es3.demo.client.StreamingWeb" />
+	<!-- <entry-point class="com.esferalia.es3.demo.client.TestMenuBar" />  -->
+	
 	<!-- Specify the paths for translatable code                    -->
 	<source path='client' />
 	<source path='shared' />
-	<entry-point class="com.esferalia.es3.demo.client.ES3"></entry-point>
 </module>
