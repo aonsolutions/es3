@@ -4,12 +4,11 @@ import com.esferalia.es3.demo.client.event.PlaySelectedEvent;
 import com.esferalia.es3.demo.client.event.SelectedMissionEvent;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
+
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.client.ui.Composite;
-//import com.google.gwt.user.client.ui.ScrollPanel;
-//import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -30,11 +29,11 @@ public class FoldersAndFilesTree extends Composite{
 	 */
 	private class CustomTreeModel implements TreeViewModel {
 
-		// Lista con �nico nodo, que ser� la ra�z del �rbol que guardar� a los hijos
+		// Lista con único nodo, que será la raíz del árbol que guardará a los hijos
 		private List<CustomNode> rangos;
-		// Manager de eventos, enviar� el path del archivo seleccionado a la interfaz para que lo reproduzca
+		// Manager de eventos, enviará el path del archivo seleccionado a la interfaz para que lo reproduzca
 		private final HandlerManager eventBus;
-		// Permite determinar c�mo se seleccionan los nodos. En este caso, de uno en uno.
+		// Permite determinar cómo se seleccionan los nodos. En este caso, de uno en uno.
 		private SingleSelectionModel<CustomNode> selectionModel;
 		// Proporciona una clave para los elementos de una lista
 		private ProvidesKey<CustomNode> keyProvider;
@@ -52,11 +51,12 @@ public class FoldersAndFilesTree extends Composite{
 		    };
 			selectionModel = new SingleSelectionModel<CustomNode>(keyProvider);
 			
-			// Definir la acci�n que se ha de realizar cuando se seleccione un nodo del �rbol
+			// Definir la acción que se ha de realizar cuando se seleccione un nodo del árbol
 			selectionModel.addSelectionChangeHandler(new Handler() {
 				@Override
 				public void onSelectionChange(SelectionChangeEvent event) {
-					if (!selectionModel.getSelectedObject().allowsChildren){
+					// Si es un elemento multimedia
+					if (!selectionModel.getSelectedObject().getAllowsChildren()){
 						PlaySelectedEvent selectedFile = new PlaySelectedEvent();
 						String relativePath;
 						String absolutePath;
@@ -65,7 +65,7 @@ public class FoldersAndFilesTree extends Composite{
 						selectedFile.setPath(relativePath);
 						eventBus.fireEvent(selectedFile);
 					}
-					else {
+					else { // Si es una misión
 						SelectedMissionEvent selectedMissionEvent= new SelectedMissionEvent();
 						String missionName = selectionModel.getSelectedObject().userObject.getName();
 						selectedMissionEvent.setName(missionName);
@@ -84,13 +84,14 @@ public class FoldersAndFilesTree extends Composite{
 //					return "http://lighttpd.esferalia.net/" + absolutePath.substring(beginIndex);
 				}
 			});
+
 		}
 
 		
 		// Obtener el NodeInfo<?> que proporciona a los hijos el valor especificado.
 		public <T> NodeInfo<?> getNodeInfo(T value) {
-			// �En el caso en el que no se seleccione nada, mostrar el root vac�o?
-			// Devuelve el nodo ra�z
+			// En el caso en el que no se seleccione nada, mostrar el root vacío?
+			// Devuelve el nodo raíz
 			if (value == null) {
 				// El proveedor que contiene la lista de condiciones.
 				ListDataProvider<CustomNode> dataProvider = new ListDataProvider<CustomNode>(rangos);

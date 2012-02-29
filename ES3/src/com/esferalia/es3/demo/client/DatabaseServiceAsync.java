@@ -14,4 +14,10 @@ public interface DatabaseServiceAsync {
 	void insertMission(Mission mission, AsyncCallback<Void> callback);
 
 	void insertFile(File file, AsyncCallback<Void> callback);
+
+	void selectMission(Integer integer, AsyncCallback<Mission> callback);
+
+	void updateMission(Mission mission, AsyncCallback<Void> callback);
+
+	void deleteMission(int id, AsyncCallback<Void> callback);
 }

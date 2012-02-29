@@ -29,4 +29,13 @@
   	<url-pattern>/es3/DatabaseService</url-pattern>
   </servlet-mapping>
   
+  <servlet>
+  	<servlet-name>FileUpload</servlet-name>
+  	<servlet-class>com.esferalia.es3.demo.server.FileUploadServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>FileUpload</servlet-name>
+  	<url-pattern>/es3/upload</url-pattern>
+  </servlet-mapping>
+  
 </web-app>

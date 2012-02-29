@@ -7,6 +7,7 @@ import java.sql.Statement;
 
 import java.util.Date;
 
+import com.esferalia.es3.demo.client.dto.File;
 import com.esferalia.es3.demo.client.dto.Mission;
 
 public class DatabaseManager extends DatabaseConnection {
@@ -126,9 +127,10 @@ public class DatabaseManager extends DatabaseConnection {
 		}
 	}
 	
-	public void selectFile(Integer ident) throws SQLException {
+	public File selectFile(Integer ident) throws SQLException {
 		Statement stmt = null;
 		ResultSet rs1 = null;
+		File file = new File();
 		
 		int id = ident.intValue();
 		
@@ -141,12 +143,20 @@ public class DatabaseManager extends DatabaseConnection {
 					" WHERE `id` = '" + id + "';";
 			rs1 = stmt.executeQuery(query);
 			rs1.next();
-			System.out.println(rs1.getString(1));
+			
+			file.setId(rs1.getInt(1));
+			file.setMission(rs1.getInt(2));
+			file.setName(rs1.getString(3));
+			file.setDescription(rs1.getString(4));
+			file.setDate_time(rs1.getDate(5));
+			file.setMD5(rs1.getString(6));
+			
 			rs1.close();
 //			connection.close();
 		} catch (SQLException e) {
 			throw e;
 		}
+		return file;
 	}
 	
 	public void insertFile(Integer identMission, String name, String description, Date date, String MD5) throws SQLException {
@@ -181,7 +191,7 @@ public class DatabaseManager extends DatabaseConnection {
 		}
 	}
 	
-	public void updateFile(Integer ident, String description, Date date_time, String MD5) throws SQLException {
+	public void updateFile(Integer ident, String name, String description, Date date_time, String MD5) throws SQLException {
 		Statement stmt = null;
 		
 		int id = ident.intValue();
@@ -192,6 +202,7 @@ public class DatabaseManager extends DatabaseConnection {
 					"UPDATE `file`" +
 					" SET" +
 //					"  `mission` = :mission," +
+					"  `name` = '" + name + "'," +
 					"  `description` = '" + description + "'," +
 					"  `date_time` = '" + date_time + "'," +
 					"  `md5` = '" + MD5 +
