@@ -12,12 +12,12 @@
 
   <!-- Servlets -->
   <servlet>
-    <servlet-name>greetServlet</servlet-name>
-    <servlet-class>com.esferalia.es3.demo.server.GreetingServiceImpl</servlet-class>
+    <servlet-name>TreeService</servlet-name>
+    <servlet-class>com.esferalia.es3.demo.server.TreeServiceImpl</servlet-class>
   </servlet>
     <servlet-mapping>
-    <servlet-name>greetServlet</servlet-name>
-    <url-pattern>/es3/greet</url-pattern>
+    <servlet-name>TreeService</servlet-name>
+    <url-pattern>/es3/tree</url-pattern>
   </servlet-mapping>
   
   <servlet>
@@ -36,6 +36,15 @@
   <servlet-mapping>
   	<servlet-name>FileUpload</servlet-name>
   	<url-pattern>/es3/upload</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+  	<servlet-name>XMLService</servlet-name>
+  	<servlet-class>com.esferalia.es3.demo.server.XMLServiceImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>XMLService</servlet-name>
+  	<url-pattern>/es3/xml</url-pattern>
   </servlet-mapping>
   
 </web-app>

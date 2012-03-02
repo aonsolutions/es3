@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE ejemplo [ 
+  <!ELEMENT gps (recorrido*)>
+  <!ELEMENT recorrido (coordenada+)>
+  <!ATTLIST recorrido id ID #REQUIRED>
+  <!ELEMENT coordenada (latitud, longitud, fecha, hora)>
+  <!ATTLIST coordenada id ID #REQUIRED>
+  <!ELEMENT longitud (#PCDATA)>
+  <!ELEMENT latitud (#PCDATA)>
+  <!ELEMENT fecha (#PCDATA)>
+  <!ELEMENT hora (#PCDATA)>
+]>
+
+<gps>
+	<recorrido id="1">
+		<coordenada id="a">
+			<latitud>42.869548</latitud>
+			<longitud>-2.697315</longitud>
+			<fecha>12032012</fecha>
+			<hora>133020</hora>
+		</coordenada>
+		<coordenada id="b">
+			<latitud>42.837332</latitud>
+			<longitud>-2.70504</longitud>
+			<fecha>12032012</fecha>
+			<hora>134156</hora>
+		</coordenada>
+		<coordenada id="e">
+			<latitud>42.837458</latitud>
+			<longitud>-2.656288</longitud>
+			<fecha>12032012</fecha>
+			<hora>134935</hora>
+		</coordenada>
+		<coordenada id="f">
+			<latitud>42.856588</latitud>
+			<longitud>-2.663326</longitud>
+			<fecha>12032012</fecha>
+			<hora>135621</hora>
+		</coordenada>
+	</recorrido>
+</gps>

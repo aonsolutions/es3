@@ -15,6 +15,7 @@
 
 	<!-- Other module inherits                                      -->
 	<inherits name='fr.hd3d.html5.video.HTML5Video' />
+	<inherits name='com.google.gwt.maps.GoogleMaps' />
 
 	<!-- Specify the app entry point class.                         -->
 	<entry-point class="com.esferalia.es3.demo.client.StreamingWeb" />

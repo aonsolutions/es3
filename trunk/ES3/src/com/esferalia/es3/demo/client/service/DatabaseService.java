@@ -1,4 +1,4 @@
-package com.esferalia.es3.demo.client;
+package com.esferalia.es3.demo.client.service;
 
 import com.esferalia.es3.demo.client.dto.File;
 import com.esferalia.es3.demo.client.dto.Mission;
