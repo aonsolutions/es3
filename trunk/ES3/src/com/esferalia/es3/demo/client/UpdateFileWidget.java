@@ -52,7 +52,7 @@ public class UpdateFileWidget extends DialogBox {
 		
 		nameTextBox = new TextBox();
 		final int punto = oldFile.getName().lastIndexOf(".");
-		nameTextBox.setText(oldFile.getName().substring(1, punto));
+		nameTextBox.setText(oldFile.getName().substring(0, punto));
 		verticalPanel.add(nameTextBox);
 		
 		Label descriptionLabel = new Label("Descripción");
