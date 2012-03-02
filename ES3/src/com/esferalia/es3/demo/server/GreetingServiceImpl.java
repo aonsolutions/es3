@@ -1,6 +1,7 @@
 package com.esferalia.es3.demo.server;
 
 import java.io.File;
+import java.util.Iterator;
 //import java.util.Iterator;
 
 import com.esferalia.es3.demo.client.GreetingService;
@@ -42,11 +43,11 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 				// call again for the subdirectory
 				listAllFiles(children[i].getPath(), node);
 
-			} /*else if (!(children[i].getName().endsWith(".js") || children[i].getName().endsWith(".swf"))) {
+			} else if (!(children[i].getName().endsWith(".js") || children[i].getName().endsWith(".swf"))) {
 				// add it as a node and do nothing else
 				node.setAllowsChildren(false);
 				parent.add(node);
-			}*/
+			}
 		}
 	}	
 	

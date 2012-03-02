@@ -98,6 +98,7 @@ public class StreamingWeb implements EntryPoint {
 
 	private Mission selectedMission;
 	private File selectedFile;
+	private CustomNode selectedCustomNode;
 	
 	private GreetingServiceAsync greetingSvc = GWT.create(GreetingService.class);
 	private DatabaseServiceAsync databaseService = GWT.create(DatabaseService.class);
@@ -122,13 +123,15 @@ public class StreamingWeb implements EntryPoint {
 		
 		initializeImageViewer();
 		
-		treeService();
+		treeService(null);
 	}
 
 	private void initializeEventBus() {
 		eventBus.addHandler(PlaySelectedEvent.TYPE, new PlaySelectedEventHandler(){
 			@Override
 			public void onPlaySelected(final PlaySelectedEvent event) {
+				selectedCustomNode = event.getNode();
+				
 				// Initialize the service proxy.
 				if (databaseService == null) {
 					databaseService = GWT.create(DatabaseService.class);
@@ -189,6 +192,7 @@ public class StreamingWeb implements EntryPoint {
 							disclosureHTML.setOpen(false);
 							disclosureFlow.setOpen(false);
 							disclosureImage.setOpen(true);
+							System.out.println("Path de la imagen seleccionada: " + event.getPath());
 							pic.setUrl(event.getPath());
 							pic.addClickHandler(new ClickHandler() {
 								@Override
@@ -198,6 +202,7 @@ public class StreamingWeb implements EntryPoint {
 							});
 						}
 						else {
+							disclosureInfo.setOpen(false);
 							disclosureHTML.setOpen(false);
 							disclosureFlow.setOpen(false);
 							disclosureImage.setOpen(false);
@@ -253,8 +258,14 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
-						// TODO Mostrar la misión creada seleccionada en el árbol
-						treeService();
+						treeService(selectedCustomNode);
+						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.add(new Label("Misión creada satisfactoriamente"));
+						popup.setTitle("Misión creada satisfactoriamente");
+						popup.setAutoHideEnabled(true);
+						popup.setGlassEnabled(true);
+						popup.center();
+						popup.show();
 					}
 				};
 
@@ -284,7 +295,7 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
-						// TODO Mostrar la misión actualizada seleccionada en el árbol
+						treeService(selectedCustomNode);
 						DecoratedPopupPanel popup = new DecoratedPopupPanel();
 						popup.add(new Label("Misión actualizada correctamente"));
 						popup.setTitle("Misión actualizada correctamente");
@@ -323,7 +334,14 @@ public class StreamingWeb implements EntryPoint {
 					public void onSuccess(Void result) {
 						disclosureInfo.clear();
 						buttonPanel.clear();
-						treeService();
+						treeService(null);
+						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.add(new Label("Misión eliminada correctamente"));
+						popup.setTitle("Misión eliminada correctamente");
+						popup.setAutoHideEnabled(true);
+						popup.setGlassEnabled(true);
+						popup.center();
+						popup.show();
 					}
 				};
 
@@ -337,6 +355,7 @@ public class StreamingWeb implements EntryPoint {
 
 			@Override
 			public void onSelectedMission(SelectedMissionEvent event) {
+				selectedCustomNode = event.getNode();
 				showMissionButtons(event.getName());
 			}
 			
@@ -414,8 +433,14 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
-						// TODO Mostrar el archivo creado seleccionado en el árbol
-						treeService();
+						treeService(selectedCustomNode);
+						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.add(new Label("Archivo añadido satisfactoriamente"));
+						popup.setTitle("Archivo añadido satisfactoriamente");
+						popup.setAutoHideEnabled(true);
+						popup.setGlassEnabled(true);
+						popup.center();
+						popup.show();
 					}
 				};
 
@@ -445,8 +470,14 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
-						// TODO Mostrar el archivo actualizado seleccionado en el árbol
-						treeService();
+						treeService(selectedCustomNode);
+						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.add(new Label("Archivo actualizado correctamente"));
+						popup.setTitle("Archivo actualizado correctamente");
+						popup.setAutoHideEnabled(true);
+						popup.setGlassEnabled(true);
+						popup.center();
+						popup.show();
 					}
 				};
 
@@ -478,7 +509,14 @@ public class StreamingWeb implements EntryPoint {
 					public void onSuccess(Void result) {
 						buttonPanel.clear();
 						disclosureInfo.clear();
-						treeService();
+						treeService(null);
+						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.add(new Label("Archivo eliminado satisfactoriamente"));
+						popup.setTitle("Archivo eliminado satisfactoriamente");
+						popup.setAutoHideEnabled(true);
+						popup.setGlassEnabled(true);
+						popup.center();
+						popup.show();
 					}
 				};
 
@@ -486,6 +524,7 @@ public class StreamingWeb implements EntryPoint {
 				databaseService.deleteFile(file, callback);
 			}
 		});
+
 	}
 
 	private void initializeBody() {
@@ -765,7 +804,7 @@ public class StreamingWeb implements EntryPoint {
 		disclosureImage.setContent(pic);
 	}
 	
-	private void treeService() {
+	private void treeService(final CustomNode selectedUINode) {
 		// Initialize the service proxy.
 		if (greetingSvc == null) {
 			greetingSvc = GWT.create(GreetingService.class);
@@ -776,7 +815,7 @@ public class StreamingWeb implements EntryPoint {
 
 			@Override
 			public void onSuccess(CustomNode result) {
-				initializeTree(result);
+				initializeTree(result, selectedUINode);
 			}
 
 			@Override
@@ -797,9 +836,9 @@ public class StreamingWeb implements EntryPoint {
 //		greetingSvc.greetServer("/srv/www/lighttpd/public", callback);
 	}
 	
-	private void initializeTree(CustomNode folderTree) {
+	private void initializeTree(CustomNode folderTree, CustomNode selectedUINode) {
 		scrollPanel.clear();
-		foldersFilesTree = new FoldersAndFilesTree(eventBus, folderTree);
+		foldersFilesTree = new FoldersAndFilesTree(eventBus, folderTree, selectedUINode);
 		scrollPanel.add(foldersFilesTree);
 		scrollPanel.onResize();
 	}

@@ -1,10 +1,13 @@
 package com.esferalia.es3.demo.client.event;
 
+import com.esferalia.es3.demo.client.tree.CustomNode;
 import com.google.gwt.event.shared.GwtEvent;
 
 public class SelectedMissionEvent extends GwtEvent<SelectedMissionEventHandler>{
 	
 	private String name;
+	private CustomNode node;
+	
 	public static final Type<SelectedMissionEventHandler> TYPE = new Type<SelectedMissionEventHandler>();
 
 	@Override
@@ -23,6 +26,14 @@ public class SelectedMissionEvent extends GwtEvent<SelectedMissionEventHandler>{
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public CustomNode getNode() {
+		return node;
+	}
+
+	public void setNode(CustomNode node) {
+		this.node = node;
 	}
 
 }
