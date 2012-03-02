@@ -20,4 +20,10 @@ public interface DatabaseServiceAsync {
 	void updateMission(Mission mission, AsyncCallback<Void> callback);
 
 	void deleteMission(int id, AsyncCallback<Void> callback);
+
+	void updateFile(File file, AsyncCallback<Void> callback);
+
+	void deleteFile(File file, AsyncCallback<Void> callback);
+
+	void selectFile(Integer valueOf, AsyncCallback<File> callback);
 }

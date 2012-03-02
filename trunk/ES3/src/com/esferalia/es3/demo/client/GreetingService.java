@@ -13,5 +13,5 @@ public interface GreetingService extends RemoteService {
 	
 	CustomNode greetServer(String name) throws IllegalArgumentException;
 
-	void changeFileDirectory(File file);
+//	void changeFileDirectory(File file);
 }

@@ -19,7 +19,6 @@ public class DatabaseManager extends DatabaseConnection {
 
 	public void getConnection() throws SQLException {
 		connection = getConn();
-		System.out.println("Load database: successful connection");
 	}
 	
 	public Mission selectMission(Integer ident) throws SQLException {
@@ -191,10 +190,11 @@ public class DatabaseManager extends DatabaseConnection {
 		}
 	}
 	
-	public void updateFile(Integer ident, String name, String description, Date date_time, String MD5) throws SQLException {
+	public void updateFile(Integer ident, String name, String description, Date date, String MD5) throws SQLException {
 		Statement stmt = null;
 		
 		int id = ident.intValue();
+		java.sql.Date date_time = new java.sql.Date(date.getTime());
 
 		try {
 			stmt = connection.createStatement();

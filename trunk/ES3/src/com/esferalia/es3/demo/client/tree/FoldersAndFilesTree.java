@@ -50,7 +50,6 @@ public class FoldersAndFilesTree extends Composite{
 				}
 		    };
 			selectionModel = new SingleSelectionModel<CustomNode>(keyProvider);
-			
 			// Definir la acción que se ha de realizar cuando se seleccione un nodo del árbol
 			selectionModel.addSelectionChangeHandler(new Handler() {
 				@Override
@@ -62,7 +61,9 @@ public class FoldersAndFilesTree extends Composite{
 						String absolutePath;
 						absolutePath = selectionModel.getSelectedObject().getUserObject().getAbsolutePath();
 						relativePath = getRelativePath(absolutePath);
+						String nameFile= selectionModel.getSelectedObject().getUserObject().getName();
 						selectedFile.setPath(relativePath);
+						selectedFile.setNameFile(nameFile);
 						eventBus.fireEvent(selectedFile);
 					}
 					else { // Si es una misión
@@ -71,6 +72,7 @@ public class FoldersAndFilesTree extends Composite{
 						selectedMissionEvent.setName(missionName);
 						eventBus.fireEvent(selectedMissionEvent);
 					}
+					
 				}
 
 				// FIXME absolutePath and relativePath

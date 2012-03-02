@@ -2,20 +2,22 @@ package com.esferalia.es3.demo.server.directory;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
 
 import com.esferalia.es3.demo.client.dto.FolderOrFile;
+import com.esferalia.es3.demo.client.exception.DatabaseException;
 import com.esferalia.es3.demo.client.tree.CustomNode;
 
 public class DirectoryManager {
 	
 	// FIXME Determinar un path para las pruebas
 	private final String BASE_PATH = "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\mission\\";
+	private final String TEMP_DIR = "C:\\temp\\";
 
 	public DirectoryManager() {
 	}
@@ -42,7 +44,7 @@ public class DirectoryManager {
 		}
 	}
 
-	public void print(CustomNode tn) {
+/*	public void print(CustomNode tn) {
 		if (!tn.isLeaf()) {
 			System.out.println();
 			System.out.println(tn + ":");
@@ -53,7 +55,7 @@ public class DirectoryManager {
 			}
 		} else
 			System.out.println(tn.getUserObject().getAbsolutePath());
-	}
+	}*/
 	
 	public void createMission(int id) throws IOException{
 		String stringPath = BASE_PATH + String.valueOf(id);
@@ -83,6 +85,29 @@ public class DirectoryManager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void changeFileDirectory(com.esferalia.es3.demo.client.dto.File file) throws IOException{
+		// Extensión archivo original
+		int punto = file.getName().lastIndexOf(".");
+		String extension = file.getName().substring(punto);
+		// Archivo a mover 
+		 File archivo= new File(TEMP_DIR + file.getName()); 
+		// Directorio destino
+		 File dir = new File(BASE_PATH + file.getMission() + "\\"); 
+		// Mover el archivo a otro directorio
+		boolean moved = archivo.renameTo(new File(dir, Integer.toString(file.getId()) + extension));
+		if (!moved) throw new IOException("No se ha podido mover el archivo");
+		
+	}
+	
+	public void deleteFile(com.esferalia.es3.demo.client.dto.File file) throws IOException{
+		int punto = file.getName().lastIndexOf(".");
+		String extension = file.getName().substring(punto);
+		String filePath = BASE_PATH + file.getMission() + "\\" +file.getId() + extension;
+		System.out.println("filePath: " + filePath);
+		boolean success = (new File(filePath)).delete();
+		if (!success) throw new IOException("No se ha podido borrar el archivo");
 	}
 	
 }

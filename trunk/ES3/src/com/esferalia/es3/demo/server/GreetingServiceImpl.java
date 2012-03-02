@@ -18,8 +18,8 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 
 	private CustomNode parent;
 	
-	private final String TEMP_DIR = "C:\\temp\\";
-	private final String DEST_PATH = "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\mission\\";
+/*	private final String TEMP_DIR = "C:\\temp\\";
+	private final String DEST_PATH = "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\mission\\";*/
 	
 	public CustomNode greetServer(String path) throws IllegalArgumentException {
 		parent = new CustomNode();
@@ -42,26 +42,24 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 				// call again for the subdirectory
 				listAllFiles(children[i].getPath(), node);
 
-			} else if (!(children[i].getName().endsWith(".js") || children[i].getName().endsWith(".swf"))) {
+			} /*else if (!(children[i].getName().endsWith(".js") || children[i].getName().endsWith(".swf"))) {
 				// add it as a node and do nothing else
 				node.setAllowsChildren(false);
 				parent.add(node);
-			}
+			}*/
 		}
-	}
+	}	
 	
-	
-	public void changeFileDirectory(com.esferalia.es3.demo.client.dto.File file){
+/*	public void changeFileDirectory(com.esferalia.es3.demo.client.dto.File file, int id){
 		// Archivo a mover 
 		 File archivo= new File(TEMP_DIR + file.getName()); 
 		// Directorio destino
 		 File dir = new File(DEST_PATH + file.getMission() + "\\"); 
 		// Mover el archivo a otro directorio
-		// TODO Cambiar el nombre al archivo por el 'id'
 		// boolean moved = archivo.renameTo(new File(dir, file.getId()));
-		boolean moved = archivo.renameTo(new File(dir, archivo.getName()));
+		boolean moved = archivo.renameTo(new File(dir, Integer.toString(id)));
 		if (!moved) System.out.println("No se ha podido mover el archivo");
-	}
+	}*/
 
 /*	private void print(CustomNode tn) {
 		if (!tn.isLeaf()) {

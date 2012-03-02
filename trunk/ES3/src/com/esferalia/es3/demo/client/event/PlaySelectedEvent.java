@@ -4,6 +4,7 @@ import com.google.gwt.event.shared.GwtEvent;
 
 public class PlaySelectedEvent extends GwtEvent<PlaySelectedEventHandler> {
 
+	private String nameFile;
 	private String path;
 	
 	public static final Type<PlaySelectedEventHandler> TYPE = new Type<PlaySelectedEventHandler>();
@@ -22,6 +23,14 @@ public class PlaySelectedEvent extends GwtEvent<PlaySelectedEventHandler> {
 
 	public void setPath(String path) {
 		this.path = path;
+	}
+
+	public String getNameFile() {
+		return nameFile;
+	}
+
+	public void setNameFile(String nameFile) {
+		this.nameFile = nameFile;
 	}
 
 }

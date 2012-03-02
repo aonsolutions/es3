@@ -12,5 +12,5 @@ public interface GreetingServiceAsync {
 	void greetServer(String input, AsyncCallback<CustomNode> callback)
 			throws IllegalArgumentException;
 	
-	void changeFileDirectory(File file, AsyncCallback<Void> callback);
+//	void changeFileDirectory(File file, AsyncCallback<Void> callback);
 }

@@ -1,7 +1,7 @@
 package com.esferalia.es3.demo.client;
 
 import com.esferalia.es3.demo.client.dto.Mission;
-import com.esferalia.es3.demo.client.dto.MissionAction;
+import com.esferalia.es3.demo.client.dto.Action;
 import com.esferalia.es3.demo.client.event.MissionEvent;
 
 import com.google.gwt.user.client.ui.DialogBox;
@@ -42,7 +42,7 @@ public class DeleteMissionWidget extends DialogBox{
 				MissionEvent deleteMissionEvent = new MissionEvent();
 				Mission deletedMision = new Mission();
 				deletedMision.setId(id);
-				deleteMissionEvent.setAccion(MissionAction.DELETE);
+				deleteMissionEvent.setAccion(Action.DELETE);
 				deleteMissionEvent.setMision(deletedMision);
 				eventbus.fireEvent(deleteMissionEvent);
 				hide();
