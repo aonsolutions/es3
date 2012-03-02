@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.Iterator;
 //import java.util.Iterator;
 
-import com.esferalia.es3.demo.client.GreetingService;
 import com.esferalia.es3.demo.client.dto.FolderOrFile;
+import com.esferalia.es3.demo.client.service.TreeService;
 import com.esferalia.es3.demo.client.tree.CustomNode;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -14,15 +14,15 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
-public class GreetingServiceImpl extends RemoteServiceServlet implements
-		GreetingService {
+public class TreeServiceImpl extends RemoteServiceServlet implements
+		TreeService {
 
 	private CustomNode parent;
 	
 /*	private final String TEMP_DIR = "C:\\temp\\";
 	private final String DEST_PATH = "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\mission\\";*/
 	
-	public CustomNode greetServer(String path) throws IllegalArgumentException {
+	public CustomNode getTree(String path) throws IllegalArgumentException {
 		parent = new CustomNode();
 		listAllFiles(path, parent);
 		return parent;

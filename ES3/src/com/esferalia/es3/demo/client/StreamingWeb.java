@@ -1,8 +1,11 @@
 package com.esferalia.es3.demo.client;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
+import com.esferalia.es3.demo.client.dto.Coordenada;
 import com.esferalia.es3.demo.client.dto.File;
 import com.esferalia.es3.demo.client.dto.Mission;
 import com.esferalia.es3.demo.client.event.FileEvent;
@@ -14,6 +17,12 @@ import com.esferalia.es3.demo.client.event.PlaySelectedEventHandler;
 import com.esferalia.es3.demo.client.event.SelectedMissionEvent;
 import com.esferalia.es3.demo.client.event.SelectedMissionEventHandler;
 import com.esferalia.es3.demo.client.flowplayer.FlowPlayer;
+import com.esferalia.es3.demo.client.service.DatabaseService;
+import com.esferalia.es3.demo.client.service.DatabaseServiceAsync;
+import com.esferalia.es3.demo.client.service.TreeService;
+import com.esferalia.es3.demo.client.service.TreeServiceAsync;
+import com.esferalia.es3.demo.client.service.XMLService;
+import com.esferalia.es3.demo.client.service.XMLServiceAsync;
 import com.esferalia.es3.demo.client.tree.CustomNode;
 import com.esferalia.es3.demo.client.tree.FoldersAndFilesTree;
 
@@ -24,9 +33,20 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ContextMenuEvent;
 import com.google.gwt.event.dom.client.ContextMenuHandler;
 import com.google.gwt.event.shared.HandlerManager;
+import com.google.gwt.maps.client.InfoWindowContent;
+import com.google.gwt.maps.client.MapWidget;
+import com.google.gwt.maps.client.Maps;
+import com.google.gwt.maps.client.control.LargeMapControl;
+import com.google.gwt.maps.client.control.MapTypeControl;
+import com.google.gwt.maps.client.control.ScaleControl;
+import com.google.gwt.maps.client.event.MarkerClickHandler;
+import com.google.gwt.maps.client.geom.LatLng;
+import com.google.gwt.maps.client.overlay.Marker;
+import com.google.gwt.maps.client.overlay.Polyline;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DecoratedPopupPanel;
 import com.google.gwt.user.client.ui.DisclosurePanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -83,10 +103,16 @@ public class StreamingWeb implements EntryPoint {
 	private FlowPlayer fp;
 	private DisclosurePanel disclosureImage;
 	private Image pic;
+	private DisclosurePanel disclosureMap;
+	private LatLng[] listaLatLng;
+	private Polyline polilinea;
+	private MapWidget map;
+	private Marker mrk;
 	private Label footerLabel;
 	
 	private HorizontalPanel horizontalPanel;
 	private HorizontalPanel titlePanel;
+	private VerticalPanel buttonPanel;
 	private Label missionLabel;
 	private HorizontalPanel missionButtonPanel;
 	private Button addFileButton;
@@ -100,11 +126,12 @@ public class StreamingWeb implements EntryPoint {
 	private File selectedFile;
 	private CustomNode selectedCustomNode;
 	
-	private GreetingServiceAsync greetingSvc = GWT.create(GreetingService.class);
+	private TreeServiceAsync treeService = GWT.create(TreeService.class);
 	private DatabaseServiceAsync databaseService = GWT.create(DatabaseService.class);
+	private XMLServiceAsync xmlService = GWT.create(XMLService.class);
 
 	final HandlerManager eventBus = new HandlerManager(null);
-	private VerticalPanel buttonPanel;
+	private VerticalPanel mappingPanel;
 
 	@Override
 	public void onModuleLoad() {
@@ -122,6 +149,8 @@ public class StreamingWeb implements EntryPoint {
 		initializeFlowplayer();
 		
 		initializeImageViewer();
+		
+		initializeMapViewer();
 		
 		treeService(null);
 	}
@@ -200,6 +229,15 @@ public class StreamingWeb implements EntryPoint {
 									showPicOriginalSize(event.getPath());
 								}
 							});
+						}
+						// Coordenadas XML
+						else if (event.getPath().endsWith(".xml")){
+							disclosureInfo.setOpen(false);
+							disclosureHTML.setOpen(false);
+							disclosureFlow.setOpen(false);
+							disclosureImage.setOpen(false);
+							mappingPanel.clear();
+							sizeOfRecorrido(1);
 						}
 						else {
 							disclosureInfo.setOpen(false);
@@ -614,6 +652,15 @@ public class StreamingWeb implements EntryPoint {
 		disclosureImage.setVisible(true);
 		splitCentrePanel.add(disclosureImage);
 		
+		disclosureMap = new DisclosurePanel("Map Viewer");
+		disclosureMap.setOpen(false);
+		disclosureMap.setVisible(true);
+		disclosureMap.setAnimationEnabled(true);
+		splitCentrePanel.add(disclosureMap);
+		
+		mappingPanel = new VerticalPanel();
+		disclosureMap.setContent(mappingPanel);
+		
 		southPanel = new HorizontalPanel();
 		southPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		dockPanel.add(southPanel, DockPanel.SOUTH);
@@ -804,10 +851,32 @@ public class StreamingWeb implements EntryPoint {
 		disclosureImage.setContent(pic);
 	}
 	
+	private void initializeMapViewer() {
+		Maps.loadMapsApi("", "2", false, new Runnable() {
+			public void run() {
+				mappingPanel.add(buildUi());
+			}
+			
+			private MapWidget buildUi() {
+				map = new MapWidget();
+				map.setSize("400px", "400px");
+				// añadimos control selector de tipo de mapa
+				map.addControl(new MapTypeControl());
+				// añadimos control de desplazamiento con zoom
+				map.addControl(new LargeMapControl());
+				// añadimos control escala de mapa
+				map.addControl(new ScaleControl());
+				// permitimos zoom com ratón
+				map.setScrollWheelZoomEnabled(true);
+				return map;
+			}
+		});
+	}
+	
 	private void treeService(final CustomNode selectedUINode) {
 		// Initialize the service proxy.
-		if (greetingSvc == null) {
-			greetingSvc = GWT.create(GreetingService.class);
+		if (treeService == null) {
+			treeService = GWT.create(TreeService.class);
 		}
 
 		// Set up the callback object.
@@ -832,7 +901,7 @@ public class StreamingWeb implements EntryPoint {
 
 		// Make the call to the greeting service.
 		// FIXME directoryPath
-		greetingSvc.greetServer(BASE_PATH, callback);
+		treeService.getTree(BASE_PATH, callback);
 //		greetingSvc.greetServer("/srv/www/lighttpd/public", callback);
 	}
 	
@@ -878,6 +947,114 @@ public class StreamingWeb implements EntryPoint {
 		popup.setGlassEnabled(true);
 		popup.center();
 		popup.show();
+	}
+	
+	private void sizeOfRecorrido(final int index) {
+		// Set up the callback object.
+		AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				DecoratedPopupPanel popup = new DecoratedPopupPanel();
+				popup.setTitle("ERROR: No se han podido obtener los datos del recorrido");
+				popup.setAutoHideEnabled(true);
+				popup.setGlassEnabled(true);
+				popup.center();
+				popup.show();
+			}
+
+			@Override
+			public void onSuccess(Integer result) {
+				listaLatLng = new LatLng[result.intValue()];
+				getCoordenadas(index);
+			}
+		};
+
+		// Make the call to the stock price service.
+		xmlService.sizeOfRecorrido(index, "", callback);
+	}
+	
+	private void getCoordenadas(int selected) {
+		// Set up the callback object.
+		AsyncCallback<Vector<Coordenada>> callback = new AsyncCallback<Vector<Coordenada>>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				DecoratedPopupPanel popup = new DecoratedPopupPanel();
+				popup.setTitle("ERROR: No se han podido obtener las coordenadas");
+				popup.setAutoHideEnabled(true);
+				popup.setGlassEnabled(true);
+				popup.center();
+				popup.show();
+			}
+
+			@Override
+			public void onSuccess(Vector<Coordenada> result) {
+				// limpiamos el mapa antes de introducir los nuevos datos
+				map.clearOverlays();
+				
+				// creamos las coordenadas
+				int i = 0;
+				Iterator<Coordenada> it = result.iterator();
+				while(it.hasNext()){
+					Coordenada coord = it.next();
+					listaLatLng[i] = LatLng.newInstance(coord.getLatitud(), coord.getLongitud());
+					System.out.println(coord.getLatitud() + " " + coord.getLongitud());
+					i++;
+				}
+				// creamos la polilínea
+				polilinea = new Polyline(listaLatLng);
+				
+				// mostramos el mapa centrado con las coordenas iniciales
+				map.setCenter(listaLatLng[0]);
+
+				// establecemos en nivel de zoom
+				map.setZoomLevel(13);
+				
+				// creamos un marcador en la coordenada inicial
+				/*mrk = new Marker(listaLatLng[0]);
+				map.addOverlay(mrk);
+				mrk.addMarkerClickHandler(new MarkerClickHandler() {
+
+					@Override
+					public void onClick(MarkerClickEvent event) {
+						// Widget en InfoWindow Normal
+						Image img = new Image();
+						img.setUrl("http://lh6.ggpht.com/_oxEB1W000Zc/S5sCOsecjdI/AAAAAAAAAGg/_CDb-vUE7gs/s800/13%20DE%20SET.%20%20PLAZA%20ATMAT.JPG");
+						img.setWidth("235px");
+						img.setHeight("267px");
+
+						// Widget en InfoWindow Maximizado
+						HTML video = new HTML(
+								"<object width='180' height='160'><param name='movie' value='http://www.youtube.com/v/8qp_VSmV17I&hl=es_ES&fs=1&rel=0'></param><param name='allowFullScreen' value='true'></param><param name='allowscriptaccess' value='always'></param><embed src='http://www.youtube.com/v/8qp_VSmV17I&hl=es_ES&fs=1&rel=0' type='application/x-shockwave-flash' allowscriptaccess='always' allowfullscreen='false' width='180' height='160'></embed></object>");
+						HTML album = new HTML(
+								"<embed type='application/x-shockwave-flash' src='http://picasaweb.google.com/s/c/bin/slideshow.swf' width='180' height='160' flashvars='host=picasaweb.google.com&hl=es&feat=flashalbum&RGB=0x000000&feed=http%3A%2F%2Fpicasaweb.google.com%2Fdata%2Ffeed%2Fapi%2Fuser%2FVictorCabreraZolla%2Falbumid%2F5447950544182068785%3Falt%3Drss%26kind%3Dphoto%26hl%3Des' pluginspage='http://www.macromedia.com/go/getflashplayer'></embed>");
+						HorizontalPanel hp = new HorizontalPanel();
+						hp.setSpacing(20);
+
+						VerticalPanel vp = new VerticalPanel();
+						vp.add(new HTML("video"));
+						vp.add(video);
+						vp.add(new HTML("diapositiva"));
+						vp.add(album);
+						hp.add(new HTML(
+								"<p style=\"text-align: justify;\">Este parque se construyo como un esfuerzo mancomunado del Sr. Alcalde  Jorge Jumanor  con los vecinos, haciendo realidad un sueño muchas veces  postergado por las anteriores autoridadede de Turno</p><p style=\"text-align: justify;\">La Obra se empezo  a contruir a inicios del año 2009 culminandose satisfactoriamente a  mediados del  2009 en el aniversario del Distrito Gregorio  Albarracion  Lanchipa</p>"));
+						hp.add(vp);
+
+						// creamos la Ventana de Informacion
+						InfoWindowContent info = new InfoWindowContent(img);
+						info.setMaxTitle("Parque Perez Gamboa");
+						info.setMaxContent(hp);
+						map.getInfoWindow().open(mrk.getLatLng(), info);
+					}
+				});*/
+				map.addOverlay(polilinea);
+				disclosureMap.setOpen(true);
+			}
+		};
+
+		// Make the call to the stock price service.
+		xmlService.getCoordenadas(Integer.toString(selected), "", callback);
 	}
 	
 }

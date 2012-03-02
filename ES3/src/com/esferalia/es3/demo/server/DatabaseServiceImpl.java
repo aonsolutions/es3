@@ -3,11 +3,11 @@ package com.esferalia.es3.demo.server;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import com.esferalia.es3.demo.client.DatabaseService;
 import com.esferalia.es3.demo.client.dto.File;
 import com.esferalia.es3.demo.client.dto.Mission;
 import com.esferalia.es3.demo.client.exception.DatabaseException;
 import com.esferalia.es3.demo.client.exception.DirectoryException;
+import com.esferalia.es3.demo.client.service.DatabaseService;
 import com.esferalia.es3.demo.server.database.DatabaseManager;
 import com.esferalia.es3.demo.server.directory.DirectoryManager;
 
