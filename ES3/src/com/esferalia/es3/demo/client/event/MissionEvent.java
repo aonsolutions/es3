@@ -1,13 +1,13 @@
 package com.esferalia.es3.demo.client.event;
 
 import com.esferalia.es3.demo.client.dto.Mission;
-import com.esferalia.es3.demo.client.dto.MissionAction;
+import com.esferalia.es3.demo.client.dto.Action;
 import com.google.gwt.event.shared.GwtEvent;
 
 public class MissionEvent extends GwtEvent<MissionEventHandler> {
 
 	private Mission mision;
-	private MissionAction accion;
+	private Action accion;
 	
 	public static final Type<MissionEventHandler> TYPE = new Type<MissionEventHandler>();
 
@@ -27,11 +27,11 @@ public class MissionEvent extends GwtEvent<MissionEventHandler> {
 		this.mision = mision;
 	}
 
-	public MissionAction getAccion() {
+	public Action getAccion() {
 		return accion;
 	}
 
-	public void setAccion(MissionAction accion) {
+	public void setAccion(Action accion) {
 		this.accion = accion;
 	}
 }

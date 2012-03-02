@@ -1,7 +1,7 @@
 package com.esferalia.es3.demo.client;
 
 import com.esferalia.es3.demo.client.dto.Mission;
-import com.esferalia.es3.demo.client.dto.MissionAction;
+import com.esferalia.es3.demo.client.dto.Action;
 import com.esferalia.es3.demo.client.event.MissionEvent;
 
 import com.google.gwt.user.client.ui.DialogBox;
@@ -121,7 +121,7 @@ public class UpdateMissionWidget extends DialogBox{
 				updatedMision.setDescription(descriptionTextArea.getText());
 				updatedMision.setStart_date(startDatePicker.getValue());
 				updatedMision.setEnd_date(endDatePicker.getValue());
-				updateMissionEvent.setAccion(MissionAction.UPDATE);
+				updateMissionEvent.setAccion(Action.UPDATE);
 				updateMissionEvent.setMision(updatedMision);
 				eventbus.fireEvent(updateMissionEvent);
 				hide();

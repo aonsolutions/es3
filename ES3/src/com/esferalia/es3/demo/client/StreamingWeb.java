@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.esferalia.es3.demo.client.dto.File;
 import com.esferalia.es3.demo.client.dto.Mission;
-import com.esferalia.es3.demo.client.event.AddFileToMissionEvent;
-import com.esferalia.es3.demo.client.event.AddFileToMissionEventHandler;
+import com.esferalia.es3.demo.client.event.FileEvent;
+import com.esferalia.es3.demo.client.event.FileEventHandler;
 import com.esferalia.es3.demo.client.event.MissionEvent;
 import com.esferalia.es3.demo.client.event.MissionEventHandler;
 import com.esferalia.es3.demo.client.event.PlaySelectedEvent;
@@ -36,6 +36,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Button;
 
 import fr.hd3d.html5.video.client.VideoSource;
@@ -50,31 +51,60 @@ public class StreamingWeb implements EntryPoint {
 	private RootPanel rootPanel;
 	private DockPanel dockPanel;
 	private HorizontalPanel northPanel;
+	private Image logo;
+	private Label titleLabel;
 	private HorizontalPanel dockCentrePanel;
 	private SplitLayoutPanel splitLayoutPanel;
 	private VerticalPanel splitVerticalPanel;
 	private ScrollPanel scrollPanel;
-	private VerticalPanel splitCentrePanel;
-	private HorizontalPanel southPanel;
-//	private VerticalPanel verticalPanel_3;
-	private DisclosurePanel disclosureHTML;
-//	private VerticalPanel verticalPanel_6;
-	private DisclosurePanel disclosureFlow;
-	private DisclosurePanel disclosureImage;
-	private Image logo;
-	private Label titleLabel;
 	private Button crearButton;
 	private FoldersAndFilesTree foldersFilesTree;
+	private VerticalPanel splitCentrePanel;
+	private HorizontalPanel southPanel;
+	private DisclosurePanel disclosureInfo;
+	private VerticalPanel infoPanel;
+	private VerticalPanel missionInfoPanel;
+	private Label missionIdLabel;
+	private Label missionNameLabel;
+	private Label missionAliasLabel;
+	private Label missionDescriptionLabel;
+	private Label missionStartLabel;
+	private Label missionEndLabel;
+	private VerticalPanel fileInfoPanel;
+	private Label fileIdLabel;
+	private Label fileMissionLabel;
+	private Label fileNameLabel;
+	private Label fileDescriptionLabel;
+	private Label fileDateLabel;
+	private Label fileMD5Label;
+	private DisclosurePanel disclosureHTML;
 	private VideoWidget videoPlayer;
+	private DisclosurePanel disclosureFlow;
 	private FlowPlayer fp;
+	private DisclosurePanel disclosureImage;
 	private Image pic;
 	private Label footerLabel;
+	
+	private HorizontalPanel horizontalPanel;
+	private HorizontalPanel titlePanel;
+	private Label missionLabel;
+	private HorizontalPanel missionButtonPanel;
+	private Button addFileButton;
+	private Button updateMissionButton;
+	private Button deleteMissionButton;
+	private HorizontalPanel fileButtonPanel;
+	private Button updateFileButton;
+	private Button deleteFileButton;
+
+	private Mission selectedMission;
+	private File selectedFile;
 	
 	private GreetingServiceAsync greetingSvc = GWT.create(GreetingService.class);
 	private DatabaseServiceAsync databaseService = GWT.create(DatabaseService.class);
 
 	final HandlerManager eventBus = new HandlerManager(null);
-	
+	private VerticalPanel buttonPanel;
+
 	@Override
 	public void onModuleLoad() {
 		
@@ -99,68 +129,88 @@ public class StreamingWeb implements EntryPoint {
 		eventBus.addHandler(PlaySelectedEvent.TYPE, new PlaySelectedEventHandler(){
 			@Override
 			public void onPlaySelected(final PlaySelectedEvent event) {
-				// Video MP4 y FLV
-				if (event.getPath().endsWith(".mp4") || event.getPath().endsWith(".flv")){
-					stopPlayers();
-					// OLD verticalPanel_3 y _6
-//					verticalPanel_6.setVisible(true);
-//					verticalPanel_3.setVisible(false);
-					disclosureHTML.setOpen(false);
-					disclosureFlow.setOpen(true);
-					disclosureImage.setOpen(false);
-					fp.play(event.getPath());
+				// Initialize the service proxy.
+				if (databaseService == null) {
+					databaseService = GWT.create(DatabaseService.class);
 				}
-				// GWT-HTML5-VIDEO
-				// Video OGV y WEBM
-				// Audio MP3 y OGG
-				else if (event.getPath().endsWith(".mp3") || event.getPath().endsWith(".ogg") || event.getPath().endsWith(".ogv") || event.getPath().endsWith(".webm")){
-					// OLD verticalPanel_3 y _6
-//					verticalPanel_6.setVisible(false);
-//					verticalPanel_3.setVisible(true);
-//					verticalPanel_3.remove(videoPlayer);
-					disclosureHTML.setOpen(true);
-					disclosureFlow.setOpen(false);
-					disclosureImage.setOpen(false);
-					disclosureHTML.remove(videoPlayer);
-					
-					videoPlayer = new VideoWidget(true, true, "");
-					List<VideoSource> sources = new ArrayList<VideoSource>();
-					sources.add(new VideoSource(event.getPath()));
-					videoPlayer.setSources(sources);
-					if (event.getPath().endsWith(".ogv") || event.getPath().endsWith(".webm"))
-						videoPlayer.setPixelSize(360, 240);
-					else
-						videoPlayer.setPixelSize(360, 140);
-					// OLD verticalPanel_3 y _6
-//					verticalPanel_3.add(videoPlayer);
-//					verticalPanel_3.setCellHorizontalAlignment(videoPlayer, HasHorizontalAlignment.ALIGN_CENTER);
-					disclosureHTML.setContent(videoPlayer);
-				}
-				// Imagen JPG y PNG
-				else if (event.getPath().endsWith(".jpg") || event.getPath().endsWith(".png")){
-					// OLD verticalPanel_3 y _6
-//					verticalPanel_6.setVisible(false);
-//					verticalPanel_3.setVisible(false);
-					disclosureHTML.setOpen(false);
-					disclosureFlow.setOpen(false);
-					disclosureImage.setOpen(true);
-					pic.setUrl(event.getPath());
-					pic.addClickHandler(new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent evnt) {
-							showPicOriginalSize(event.getPath());
+
+				// Set up the callback object.
+				AsyncCallback<File> callback = new AsyncCallback<File>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.add(new Label("ERROR: No se ha podido acceder a la base de datos"));
+						popup.setTitle("ERROR: No se ha podido acceder a la base de datos");
+						popup.setAutoHideEnabled(true);
+						popup.setGlassEnabled(true);
+						popup.center();
+						popup.show();
+					}
+
+					@Override
+					public void onSuccess(File result) {
+						selectedFile = result;
+						initializeFileButtons();
+						initializeFileAditionalInfo();
+						showFileDisclosure(event);
+					}
+
+					private void showFileDisclosure(final PlaySelectedEvent event) {
+						// Video MP4 y FLV
+						if (event.getPath().endsWith(".mp4") || event.getPath().endsWith(".flv")){
+							stopPlayers();
+							disclosureHTML.setOpen(false);
+							disclosureFlow.setOpen(true);
+							disclosureImage.setOpen(false);
+							fp.play(event.getPath());
 						}
-					});
-				}
-				else {
-					// OLD verticalPanel_3 y _6
-//					verticalPanel_6.setVisible(false);
-//					verticalPanel_3.setVisible(false);
-					disclosureHTML.setOpen(false);
-					disclosureFlow.setOpen(false);
-					disclosureImage.setOpen(false);
-					errorFileFormatPopUp();
-				}
+						// GWT-HTML5-VIDEO
+						// Video OGV y WEBM
+						// Audio MP3 y OGG
+						else if (event.getPath().endsWith(".mp3") || event.getPath().endsWith(".ogg") || event.getPath().endsWith(".ogv") || event.getPath().endsWith(".webm")){
+							disclosureHTML.setOpen(true);
+							disclosureFlow.setOpen(false);
+							disclosureImage.setOpen(false);
+							disclosureHTML.remove(videoPlayer);
+							
+							videoPlayer = new VideoWidget(true, true, "");
+							List<VideoSource> sources = new ArrayList<VideoSource>();
+							sources.add(new VideoSource(event.getPath()));
+							videoPlayer.setSources(sources);
+							if (event.getPath().endsWith(".ogv") || event.getPath().endsWith(".webm"))
+								videoPlayer.setPixelSize(360, 240);
+							else
+								videoPlayer.setPixelSize(360, 140);
+							disclosureHTML.setContent(videoPlayer);
+						}
+						// Imagen JPG y PNG
+						else if (event.getPath().endsWith(".jpg") || event.getPath().endsWith(".png")){
+							disclosureHTML.setOpen(false);
+							disclosureFlow.setOpen(false);
+							disclosureImage.setOpen(true);
+							pic.setUrl(event.getPath());
+							pic.addClickHandler(new ClickHandler() {
+								@Override
+								public void onClick(ClickEvent evnt) {
+									showPicOriginalSize(event.getPath());
+								}
+							});
+						}
+						else {
+							disclosureHTML.setOpen(false);
+							disclosureFlow.setOpen(false);
+							disclosureImage.setOpen(false);
+							errorFileFormatPopUp();
+						}
+					}
+
+				};
+				
+				String[] split = event.getNameFile().split("\\.");
+				String id = split[0];
+				// Make the call to the database service.
+				databaseService.selectFile(Integer.valueOf(id), callback);
 			}
 		});
 		
@@ -203,7 +253,7 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
-						// IDEA ¿Después de crear misión, mostrar AddFileToMission?
+						// TODO Mostrar la misión creada seleccionada en el árbol
 						treeService();
 					}
 				};
@@ -234,6 +284,7 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
+						// TODO Mostrar la misión actualizada seleccionada en el árbol
 						DecoratedPopupPanel popup = new DecoratedPopupPanel();
 						popup.add(new Label("Misión actualizada correctamente"));
 						popup.setTitle("Misión actualizada correctamente");
@@ -270,6 +321,8 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
+						disclosureInfo.clear();
+						buttonPanel.clear();
 						treeService();
 					}
 				};
@@ -284,25 +337,10 @@ public class StreamingWeb implements EntryPoint {
 
 			@Override
 			public void onSelectedMission(SelectedMissionEvent event) {
-				// TODO Código de 'Borrar la misión al hacer clic sobre ella en el árbol'
-				DeleteMissionWidget deleteMissionWidget = new DeleteMissionWidget(eventBus, Integer.parseInt(event.getName()));
-				deleteMissionWidget.setGlassEnabled(true);
-				deleteMissionWidget.center();
-				deleteMissionWidget.show();
-				
-				// TODO Código de 'Actualizar la misión al hacer clic sobre ella en el árbol'
-				// Junto con el procedimiento privado 'selectMission()' de más abajo
-				// selectMission(event.getName());
-				
-				// TODO Código de 'Añadir archivo al hacer clic sobre una misión en el árbol'
-/*				AddFileToMissionWidget addFileToMissionWidget = new AddFileToMissionWidget(event.getName(), eventBus);
-				addFileToMissionWidget.setGlassEnabled(true);
-				addFileToMissionWidget.center();
-				addFileToMissionWidget.show();*/
+				showMissionButtons(event.getName());
 			}
 			
-			// XXX Despúes de obtener los datos de la misión, mostramos la interfaz de actualización 
-			private void selectMission(String name) {
+			private void showMissionButtons(String name) {
 				// Initialize the service proxy.
 				if (databaseService == null) {
 					databaseService = GWT.create(DatabaseService.class);
@@ -324,26 +362,37 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Mission result) {
-						UpdateMissionWidget updateMissionWidget = new UpdateMissionWidget(eventBus, result);
-						updateMissionWidget.setGlassEnabled(true);
-						updateMissionWidget.center();
-						updateMissionWidget.show();
+						selectedMission = result;
+						initializeMissionButtons();
+						initializeMissionAditionalInfo();
 					}
+
 				};
 
 				// Make the call to the database service.
 				databaseService.selectMission(Integer.valueOf(name), callback);
 			}
+
 		});
 		
-		eventBus.addHandler(AddFileToMissionEvent.TYPE, new AddFileToMissionEventHandler(){
+		eventBus.addHandler(FileEvent.TYPE, new FileEventHandler(){
 
 			@Override
-			public void onAddFileToMission(AddFileToMissionEvent event) {
-				addFileToMission(event.getFile());
+			public void onFile(FileEvent event) {
+					switch(event.getAccion()){
+					case CREATE:
+						createFile(event.getFile());
+						break;
+					case UPDATE:
+						updateFile(event.getFile());
+						break;
+					case DELETE:
+						deleteFile(selectedFile);
+						break;
+					}
 			}
 
-			private void addFileToMission(File file) {
+			private void createFile(File file) {
 				// Initialize the service proxy.
 				if (databaseService == null) {
 					databaseService = GWT.create(DatabaseService.class);
@@ -365,13 +414,76 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
-						// IDEA ¿Qué mostrar después de insertar archivo?
+						// TODO Mostrar el archivo creado seleccionado en el árbol
 						treeService();
 					}
 				};
 
 				// Make the call to the database service.
 				databaseService.insertFile(file, callback);
+			}
+			
+			private void updateFile(File file) {
+				// Initialize the service proxy.
+				if (databaseService == null) {
+					databaseService = GWT.create(DatabaseService.class);
+				}
+
+				// Set up the callback object.
+				AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.add(new Label("ERROR: No se ha podido actualizar el archivo"));
+						popup.setTitle("ERROR: No se ha podido actualizar el archivo");
+						popup.setAutoHideEnabled(true);
+						popup.setGlassEnabled(true);
+						popup.center();
+						popup.show();
+					}
+
+					@Override
+					public void onSuccess(Void result) {
+						// TODO Mostrar el archivo actualizado seleccionado en el árbol
+						treeService();
+					}
+				};
+
+				// Make the call to the database service.
+				databaseService.updateFile(file, callback);
+			}
+
+			private void deleteFile(File file) {
+				// Initialize the service proxy.
+				if (databaseService == null) {
+					databaseService = GWT.create(DatabaseService.class);
+				}
+
+				// Set up the callback object.
+				AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						DecoratedPopupPanel popup = new DecoratedPopupPanel();
+						popup.add(new Label("ERROR: No se ha podido eliminar el archivo"));
+						popup.setTitle("ERROR: No se ha podido eliminar el archivo");
+						popup.setAutoHideEnabled(true);
+						popup.setGlassEnabled(true);
+						popup.center();
+						popup.show();
+					}
+
+					@Override
+					public void onSuccess(Void result) {
+						buttonPanel.clear();
+						disclosureInfo.clear();
+						treeService();
+					}
+				};
+
+				// Make the call to the database service.
+				databaseService.deleteFile(file, callback);
 			}
 		});
 	}
@@ -390,6 +502,28 @@ public class StreamingWeb implements EntryPoint {
 		dockPanel.add(northPanel, DockPanel.NORTH);
 		northPanel.setSize("900px", "100px");
 		
+		horizontalPanel = new HorizontalPanel();
+		dockPanel.add(horizontalPanel, DockPanel.NORTH);
+		horizontalPanel.setSize("900px", "50px");
+		
+		titlePanel = new HorizontalPanel();
+		titlePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		titlePanel.setSpacing(10);
+		horizontalPanel.add(titlePanel);
+		horizontalPanel.setCellVerticalAlignment(titlePanel, HasVerticalAlignment.ALIGN_MIDDLE);
+		
+		missionLabel = new Label("Misiones");
+		titlePanel.add(missionLabel);
+		horizontalPanel.setCellVerticalAlignment(missionLabel, HasVerticalAlignment.ALIGN_MIDDLE);
+		
+		buttonPanel = new VerticalPanel();
+		buttonPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		horizontalPanel.add(buttonPanel);
+		horizontalPanel.setCellVerticalAlignment(buttonPanel, HasVerticalAlignment.ALIGN_MIDDLE);
+		
+		missionButtonPanel = new HorizontalPanel();
+		fileButtonPanel = new HorizontalPanel();
+		
 		dockCentrePanel = new HorizontalPanel();
 		dockPanel.add(dockCentrePanel, DockPanel.CENTER);
 		dockCentrePanel.setSize("", "800px");
@@ -397,15 +531,15 @@ public class StreamingWeb implements EntryPoint {
 		
 		splitLayoutPanel = new SplitLayoutPanel();
 		dockCentrePanel.add(splitLayoutPanel);
-		splitLayoutPanel.setSize("1200px", "800px");
+		splitLayoutPanel.setSize("900px", "800px");
 		
 		splitVerticalPanel = new VerticalPanel();
 		splitVerticalPanel.setSpacing(10);
 		splitLayoutPanel.addWest(splitVerticalPanel, 250.0);
 		
-		crearButton = new Button("Crear misión");
-		crearButton.setText("Crear misión");
+		crearButton = new Button("Crear");
 		splitVerticalPanel.add(crearButton);
+		splitVerticalPanel.setCellVerticalAlignment(crearButton, HasVerticalAlignment.ALIGN_MIDDLE);
 		
 		scrollPanel = new ScrollPanel();
 		splitVerticalPanel.add(scrollPanel);
@@ -414,29 +548,21 @@ public class StreamingWeb implements EntryPoint {
 		splitLayoutPanel.add(splitCentrePanel);
 		splitCentrePanel.setSize("", "");
 		
-		// OLD verticalPanel_3
-//		verticalPanel_3 = new VerticalPanel();
-//		verticalPanel_3.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER); verticalPanel_3.setSpacing(10);
-//		Label lblNewLabel_3 = new Label("HTML5");
-//		lblNewLabel_3.setStyleName("h3");
-//		disclosureHTML.add(lblNewLabel_3);
-//		verticalPanel_3.setCellHorizontalAlignment(lblNewLabel_3, HasHorizontalAlignment.ALIGN_CENTER);
-//		verticalPanel_3.setVisible(false);
-//		splitCentrePanel.add(verticalPanel_3);
+		disclosureInfo = new DisclosurePanel("Información adicional");
+		disclosureInfo.setAnimationEnabled(true);
+		disclosureInfo.setOpen(false);
+		disclosureInfo.setVisible(true);
+		splitCentrePanel.add(disclosureInfo);
+		
+		infoPanel = new VerticalPanel();
+		disclosureInfo.setContent(infoPanel);
+		
 		disclosureHTML = new DisclosurePanel("HTML5 Player");
 		disclosureHTML.setAnimationEnabled(true);
 		disclosureHTML.setOpen(false);
 		disclosureHTML.setVisible(true);
 		splitCentrePanel.add(disclosureHTML);
-		
-		// OLD verticalPanel_6
-//		verticalPanel_6 = new VerticalPanel();
-//		verticalPanel_6.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER); verticalPanel_6.setSpacing(10);
-//		Label lblNewLabel_6 = new Label("FlowPlayer");
-//		lblNewLabel_6.setStyleName("h3"); verticalPanel_6.add(lblNewLabel_6);
-//		verticalPanel_6.setCellHorizontalAlignment(lblNewLabel_6, HasHorizontalAlignment.ALIGN_CENTER);
-//		verticalPanel_6.setVisible(false);
-//		splitCentrePanel.add(verticalPanel_6);
+
 		disclosureFlow = new DisclosurePanel("FlowPlayer");
 		disclosureFlow.setAnimationEnabled(true);
 		disclosureFlow.setOpen(false);
@@ -460,7 +586,7 @@ public class StreamingWeb implements EntryPoint {
 		southPanel.setCellHorizontalAlignment(footerLabel, HasHorizontalAlignment.ALIGN_CENTER);
 		southPanel.setVisible(false);
 	}
-
+	
 	private void initializeHeader() {
 		logo = new Image(images.esferalia());
 		northPanel.add(logo);
@@ -474,6 +600,78 @@ public class StreamingWeb implements EntryPoint {
 		northPanel.setCellHorizontalAlignment(titleLabel, HasHorizontalAlignment.ALIGN_CENTER);
 	}
 	
+	private void initializeMissionButtons() {
+		buttonPanel.clear();
+		missionButtonPanel = new HorizontalPanel();
+		missionButtonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		missionButtonPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		missionButtonPanel.setSpacing(10);
+		buttonPanel.add(missionButtonPanel);
+		buttonPanel.setCellVerticalAlignment(missionButtonPanel, HasVerticalAlignment.ALIGN_MIDDLE);
+		buttonPanel.setCellHorizontalAlignment(missionButtonPanel, HasHorizontalAlignment.ALIGN_CENTER);
+		addFileButton = new Button("Añadir archivo");
+		addFileButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				CreateFileWidget addFileToMissionWidget = new CreateFileWidget(selectedMission.getId(), eventBus);
+				addFileToMissionWidget.setGlassEnabled(true);
+				addFileToMissionWidget.center();
+				addFileToMissionWidget.show();
+			}
+		});
+		missionButtonPanel.add(addFileButton);
+		updateMissionButton = new Button("Modificar");
+		updateMissionButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				UpdateMissionWidget updateMissionWidget = new UpdateMissionWidget(eventBus, selectedMission);
+				updateMissionWidget.setGlassEnabled(true);
+				updateMissionWidget.center();
+				updateMissionWidget.show();
+			}
+		});
+		missionButtonPanel.add(updateMissionButton);
+		deleteMissionButton = new Button("Borrar");
+		deleteMissionButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				DeleteMissionWidget deleteMissionWidget = new DeleteMissionWidget(eventBus, selectedMission.getId());
+				deleteMissionWidget.setGlassEnabled(true);
+				deleteMissionWidget.center();
+				deleteMissionWidget.show();
+			}
+		});
+		missionButtonPanel.add(deleteMissionButton);
+	}
+	
+	private void initializeFileButtons() {
+		buttonPanel.clear();
+		fileButtonPanel = new HorizontalPanel();
+		fileButtonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		fileButtonPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		fileButtonPanel.setSpacing(10);
+		buttonPanel.add(fileButtonPanel);
+		buttonPanel.setCellVerticalAlignment(fileButtonPanel, HasVerticalAlignment.ALIGN_MIDDLE);
+		buttonPanel.setCellHorizontalAlignment(fileButtonPanel, HasHorizontalAlignment.ALIGN_CENTER);
+		updateFileButton = new Button("Modificar");
+		updateFileButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				UpdateFileWidget updateFileWidget = new UpdateFileWidget(eventBus, selectedFile);
+				updateFileWidget.setGlassEnabled(true);
+				updateFileWidget.center();
+				updateFileWidget.show();
+			}
+		});
+		fileButtonPanel.add(updateFileButton);
+		deleteFileButton = new Button("Borrar");
+		deleteFileButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				DeleteFileWidget deleteFileWidget = new DeleteFileWidget(eventBus, selectedFile.getId());
+				deleteFileWidget.setGlassEnabled(true);
+				deleteFileWidget.center();
+				deleteFileWidget.show();
+			}
+		});
+		fileButtonPanel.add(deleteFileButton);
+	}
+	
 	private void initializeMissions() {
 		crearButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -484,6 +682,42 @@ public class StreamingWeb implements EntryPoint {
 			}
 		});
 	}
+
+	private void initializeMissionAditionalInfo() {
+		infoPanel.clear();
+		missionInfoPanel = new VerticalPanel();
+		infoPanel.add(missionInfoPanel);
+		missionIdLabel = new Label("ID: " + selectedMission.getId());
+		missionInfoPanel.add(missionIdLabel);
+		missionNameLabel = new Label("Nombre: " + selectedMission.getName());
+		missionInfoPanel.add(missionNameLabel);
+		missionAliasLabel = new Label("Alias: " + selectedMission.getAlias());
+		missionInfoPanel.add(missionAliasLabel);
+		missionDescriptionLabel = new Label("Descripción: " + selectedMission.getDescription());
+		missionInfoPanel.add(missionDescriptionLabel);
+		missionStartLabel = new Label("Fecha inicio: " + selectedMission.getStart_date().getTime());
+		missionInfoPanel.add(missionStartLabel);
+		missionEndLabel = new Label("Fecha fin: " + selectedMission.getEnd_date().getTime());
+		missionInfoPanel.add(missionEndLabel);
+	}
+
+	private void initializeFileAditionalInfo() {
+		infoPanel.clear();
+		fileInfoPanel = new VerticalPanel();
+		infoPanel.add(fileInfoPanel);
+		fileIdLabel = new Label("ID: " + selectedFile.getId());
+		fileInfoPanel.add(fileIdLabel);
+		fileMissionLabel = new Label("Corresponde a misión: " + selectedFile.getMission());
+		fileInfoPanel.add(fileMissionLabel);
+		fileNameLabel = new Label("Nombre: " + selectedFile.getName());
+		fileInfoPanel.add(fileNameLabel);
+		fileDescriptionLabel = new Label("Descripción: " + selectedFile.getDescription());
+		fileInfoPanel.add(fileDescriptionLabel);
+		fileDateLabel = new Label("Fecha: " + selectedFile.getDate_time().getTime());
+		fileInfoPanel.add(fileDateLabel);
+		fileMD5Label = new Label("MD5: " + selectedFile.getMD5());
+		fileInfoPanel.add(fileMD5Label);
+	}
 	
 	private void initializeHTML5video() {
 		videoPlayer = new VideoWidget(true, true, "es3/pics/play_button_big.jpg");
@@ -491,9 +725,6 @@ public class StreamingWeb implements EntryPoint {
 		// sources.add(new VideoSource("ES3/videos/bbb_trailer_360p.webm",	VideoType.WEBM));
 		// videoPlayer.setSources(sources);
 		videoPlayer.setPixelSize(360, 240);
-		// OLD verticalPanel_3
-//		verticalPanel_3.add(videoPlayer);
-//		verticalPanel_3.setCellHorizontalAlignment(videoPlayer, HasHorizontalAlignment.ALIGN_CENTER);
 		disclosureHTML.setContent(videoPlayer);
 		disclosureHTML.addDomHandler(new ContextMenuHandler(){
 			@Override
@@ -510,9 +741,6 @@ public class StreamingWeb implements EntryPoint {
 		// fp.play("http://lighttpd.esferalia.net/mediaplayer-5.9/videos/01.Millenium.flv");
 		// fp.play("http://192.168.2.107/mediaplayer-5.9/videos/01.Millenium.flv");
 		// fp.play("es3/videos/big-buck-bunny.mp4");
-		// OLD verticalPanel_6
-//		verticalPanel_6.add(fp);
-//		verticalPanel_6.setCellHorizontalAlignment(fp, HasHorizontalAlignment.ALIGN_CENTER);
 		disclosureFlow.setContent(fp);
 		disclosureFlow.addDomHandler(new ContextMenuHandler(){
 			@Override

@@ -17,12 +17,18 @@ public interface DatabaseService extends RemoteService {
 
 	void insertMission(Mission mission) throws DatabaseException, DirectoryException;
 
-	void insertFile(File file) throws DatabaseException;
+	void insertFile(File file) throws DatabaseException, DirectoryException;
 
 	Mission selectMission(Integer integer) throws DatabaseException;
 
 	void updateMission(Mission mission) throws DatabaseException;
 
 	void deleteMission(int id) throws DatabaseException, DirectoryException;
+
+	void updateFile(File file) throws DatabaseException;
+
+	void deleteFile(File file) throws DatabaseException, DirectoryException;
+
+	File selectFile(Integer valueOf) throws DatabaseException;
 
 }

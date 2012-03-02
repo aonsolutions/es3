@@ -36,7 +36,6 @@ public abstract class DatabaseConnection {
 			Class.forName(driver).newInstance();
 			conn = DriverManager.getConnection("jdbc:mysql://"+url+"?" +
 					"user="+user+"&password="+pass);
-			System.out.println("Conexión conseguida");
 		} catch (SQLException sqlEx) {
 			System.err.println("Mysql Connection Error: " + sqlEx.toString());
 		}

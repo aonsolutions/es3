@@ -1,12 +1,11 @@
 package com.esferalia.es3.demo.client;
 
+import com.esferalia.es3.demo.client.dto.Action;
 import com.esferalia.es3.demo.client.dto.File;
-import com.esferalia.es3.demo.client.event.AddFileToMissionEvent;
+import com.esferalia.es3.demo.client.event.FileEvent;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.DecoratedPopupPanel;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
@@ -27,7 +26,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 
 import com.google.gwt.event.shared.HandlerManager;
 
-public class AddFileToMissionWidget extends DialogBox {
+public class CreateFileWidget extends DialogBox {
 	
 	private static final String UPLOAD_ACTION_URL = GWT.getModuleBaseURL() + "upload";
 	private VerticalPanel mainPanel;
@@ -39,9 +38,7 @@ public class AddFileToMissionWidget extends DialogBox {
 	private File file;
 	private FormPanel form;
 	
-	private GreetingServiceAsync greetingSvc = GWT.create(GreetingService.class);
-	
-	public AddFileToMissionWidget(final String mision, final HandlerManager eventbus){
+	public CreateFileWidget(final int idMision, final HandlerManager eventbus){
 		mainPanel = new VerticalPanel();
 		mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		mainPanel.setSpacing(10);
@@ -116,8 +113,7 @@ public class AddFileToMissionWidget extends DialogBox {
 					submitEvent.cancel();
 				}
 				else {
-					AddFileToMissionEvent addFileToMissionEvent = new AddFileToMissionEvent();
-					file.setMission(Integer.parseInt(mision));
+					file.setMission(idMision);
 					String originalName;
 					if(upload.getFilename().contains("\\")){
 						int beginIndex;
@@ -128,8 +124,6 @@ public class AddFileToMissionWidget extends DialogBox {
 					file.setName(originalName);
 					file.setDescription(descriptionTextArea.getText());
 					file.setDate_time(startDatePicker.getValue());
-					addFileToMissionEvent.setFile(file);
-					eventbus.fireEvent(addFileToMissionEvent);
 				}
 			}
 		});
@@ -141,38 +135,13 @@ public class AddFileToMissionWidget extends DialogBox {
 				// text/html, we can get the result text here (see the FormPanel
 				// documentation for further explanation).
 				// Window.alert(submitCompleteEvent.getResults());
+				FileEvent createFileEvent = new FileEvent();
+				createFileEvent.setAccion(Action.CREATE);
+				createFileEvent.setFile(file);
+				eventbus.fireEvent(createFileEvent);
 				hide();
-				changeFileDirectory(file);
 			}
 			
-			private void changeFileDirectory(File file) {
-				// Initialize the service proxy.
-				if (greetingSvc == null) {
-					greetingSvc = GWT.create(GreetingService.class);
-				}
-
-				// Set up the callback object.
-				AsyncCallback<Void> callback = new AsyncCallback<Void>() {
-
-					@Override
-					public void onFailure(Throwable caught) {
-						DecoratedPopupPanel popup = new DecoratedPopupPanel();
-						popup.setTitle("ERROR: No se ha podido cambiar la ubicación del archivo en el servidor");
-						popup.setAutoHideEnabled(true);
-						popup.setGlassEnabled(true);
-						popup.center();
-						popup.show();
-					}
-
-					@Override
-					public void onSuccess(Void result) {
-						// TODO Actualizar el árbol de misiones contenido en StreamingWeb.java
-					}
-				};
-
-				// Make the call to the greeting service.
-				greetingSvc.changeFileDirectory(file, callback);
-			}
 		});
 		mainPanel.add(uploadPanel);
 		
