@@ -58,6 +58,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Widget;
 
 import fr.hd3d.html5.video.client.VideoSource;
 import fr.hd3d.html5.video.client.VideoWidget;
@@ -66,6 +67,8 @@ public class StreamingWeb implements EntryPoint {
 	
 	// FIXME directoryPath
 	private final String BASE_PATH = "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\mission";
+			// "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\mission";
+			// "/srv/www/lighttpd/es3/mission/"; 
 
 	private Images images;
 	private RootPanel rootPanel;
@@ -195,6 +198,7 @@ public class StreamingWeb implements EntryPoint {
 							disclosureHTML.setOpen(false);
 							disclosureFlow.setOpen(true);
 							disclosureImage.setOpen(false);
+							disclosureMap.setOpen(false);
 							fp.play(event.getPath());
 						}
 						// GWT-HTML5-VIDEO
@@ -204,6 +208,7 @@ public class StreamingWeb implements EntryPoint {
 							disclosureHTML.setOpen(true);
 							disclosureFlow.setOpen(false);
 							disclosureImage.setOpen(false);
+							disclosureMap.setOpen(false);
 							disclosureHTML.remove(videoPlayer);
 							
 							videoPlayer = new VideoWidget(true, true, "");
@@ -221,7 +226,10 @@ public class StreamingWeb implements EntryPoint {
 							disclosureHTML.setOpen(false);
 							disclosureFlow.setOpen(false);
 							disclosureImage.setOpen(true);
+							disclosureMap.setOpen(false);
 							System.out.println("Path de la imagen seleccionada: " + event.getPath());
+							System.out.println("Resultado de getNameFile: " + event.getNameFile());
+							System.out.println("Nombre del nodo seleccionado: " + event.getNode().getUserObject().getName());
 							pic.setUrl(event.getPath());
 							pic.addClickHandler(new ClickHandler() {
 								@Override
@@ -236,14 +244,14 @@ public class StreamingWeb implements EntryPoint {
 							disclosureHTML.setOpen(false);
 							disclosureFlow.setOpen(false);
 							disclosureImage.setOpen(false);
-							mappingPanel.clear();
-							sizeOfRecorrido(1);
+							sizeOfRecorrido(1, event.getPath());
 						}
 						else {
 							disclosureInfo.setOpen(false);
 							disclosureHTML.setOpen(false);
 							disclosureFlow.setOpen(false);
 							disclosureImage.setOpen(false);
+							disclosureMap.setOpen(false);
 							errorFileFormatPopUp();
 						}
 					}
@@ -296,7 +304,7 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
-						treeService(selectedCustomNode);
+						treeService(null);
 						DecoratedPopupPanel popup = new DecoratedPopupPanel();
 						popup.add(new Label("Misión creada satisfactoriamente"));
 						popup.setTitle("Misión creada satisfactoriamente");
@@ -393,8 +401,12 @@ public class StreamingWeb implements EntryPoint {
 
 			@Override
 			public void onSelectedMission(SelectedMissionEvent event) {
-				selectedCustomNode = event.getNode();
-				showMissionButtons(event.getName());
+				if (event.getName().endsWith("video") || event.getName().endsWith("audio") || event.getName().endsWith("imagen") || event.getName().endsWith("cartografia") || event.getName().endsWith("documento"))
+					buttonPanel.clear();
+				else {
+					selectedCustomNode = event.getNode();
+					showMissionButtons(event.getName());
+				}
 			}
 			
 			private void showMissionButtons(String name) {
@@ -471,7 +483,7 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
-						treeService(selectedCustomNode);
+						treeService(null);
 						DecoratedPopupPanel popup = new DecoratedPopupPanel();
 						popup.add(new Label("Archivo añadido satisfactoriamente"));
 						popup.setTitle("Archivo añadido satisfactoriamente");
@@ -806,7 +818,7 @@ public class StreamingWeb implements EntryPoint {
 	}
 	
 	private void initializeHTML5video() {
-		videoPlayer = new VideoWidget(true, true, "es3/pics/play_button_big.jpg");
+		videoPlayer = new VideoWidget(true, true, "es3/pics/playbutton.png");
 		// sources.add(new VideoSource("ES3/videos/bbb_trailer_400p.ogv"));
 		// sources.add(new VideoSource("ES3/videos/bbb_trailer_360p.webm",	VideoType.WEBM));
 		// videoPlayer.setSources(sources);
@@ -852,25 +864,11 @@ public class StreamingWeb implements EntryPoint {
 	}
 	
 	private void initializeMapViewer() {
-		Maps.loadMapsApi("", "2", false, new Runnable() {
-			public void run() {
-				mappingPanel.add(buildUi());
-			}
-			
-			private MapWidget buildUi() {
-				map = new MapWidget();
-				map.setSize("400px", "400px");
-				// añadimos control selector de tipo de mapa
-				map.addControl(new MapTypeControl());
-				// añadimos control de desplazamiento con zoom
-				map.addControl(new LargeMapControl());
-				// añadimos control escala de mapa
-				map.addControl(new ScaleControl());
-				// permitimos zoom com ratón
-				map.setScrollWheelZoomEnabled(true);
-				return map;
-			}
-		});
+		// Código cambiado de lugar --> getCoordenadas/onSucces
+		// Es necesario cargar el mapa cuando el Disclosure esté abierto
+		// Si se hace aquí abrir/cargar/cerrar, se ve y queda mal
+		// En su lugar, se abre y se crea el mapa cada vez que se hace clic sobre el objeto del árbol
+		// En vez de utilizar siempre el mismo mapa y limpiarlo
 	}
 	
 	private void treeService(final CustomNode selectedUINode) {
@@ -949,7 +947,8 @@ public class StreamingWeb implements EntryPoint {
 		popup.show();
 	}
 	
-	private void sizeOfRecorrido(final int index) {
+	private void sizeOfRecorrido(final int index, final String name) {
+		// TODO Único recorrido por XML, ¿merece la pena tener las dos funciones?
 		// Set up the callback object.
 		AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
 
@@ -966,15 +965,15 @@ public class StreamingWeb implements EntryPoint {
 			@Override
 			public void onSuccess(Integer result) {
 				listaLatLng = new LatLng[result.intValue()];
-				getCoordenadas(index);
+				getCoordenadas(index, name);
 			}
 		};
 
 		// Make the call to the stock price service.
-		xmlService.sizeOfRecorrido(index, "", callback);
+		xmlService.sizeOfRecorrido(index, name, callback);
 	}
 	
-	private void getCoordenadas(int selected) {
+	private void getCoordenadas(int selected, String name) {
 		// Set up the callback object.
 		AsyncCallback<Vector<Coordenada>> callback = new AsyncCallback<Vector<Coordenada>>() {
 
@@ -989,72 +988,92 @@ public class StreamingWeb implements EntryPoint {
 			}
 
 			@Override
-			public void onSuccess(Vector<Coordenada> result) {
-				// limpiamos el mapa antes de introducir los nuevos datos
-				map.clearOverlays();
-				
-				// creamos las coordenadas
-				int i = 0;
-				Iterator<Coordenada> it = result.iterator();
-				while(it.hasNext()){
-					Coordenada coord = it.next();
-					listaLatLng[i] = LatLng.newInstance(coord.getLatitud(), coord.getLongitud());
-					System.out.println(coord.getLatitud() + " " + coord.getLongitud());
-					i++;
-				}
-				// creamos la polilínea
-				polilinea = new Polyline(listaLatLng);
-				
-				// mostramos el mapa centrado con las coordenas iniciales
-				map.setCenter(listaLatLng[0]);
-
-				// establecemos en nivel de zoom
-				map.setZoomLevel(13);
-				
-				// creamos un marcador en la coordenada inicial
-				/*mrk = new Marker(listaLatLng[0]);
-				map.addOverlay(mrk);
-				mrk.addMarkerClickHandler(new MarkerClickHandler() {
-
-					@Override
-					public void onClick(MarkerClickEvent event) {
-						// Widget en InfoWindow Normal
-						Image img = new Image();
-						img.setUrl("http://lh6.ggpht.com/_oxEB1W000Zc/S5sCOsecjdI/AAAAAAAAAGg/_CDb-vUE7gs/s800/13%20DE%20SET.%20%20PLAZA%20ATMAT.JPG");
-						img.setWidth("235px");
-						img.setHeight("267px");
-
-						// Widget en InfoWindow Maximizado
-						HTML video = new HTML(
-								"<object width='180' height='160'><param name='movie' value='http://www.youtube.com/v/8qp_VSmV17I&hl=es_ES&fs=1&rel=0'></param><param name='allowFullScreen' value='true'></param><param name='allowscriptaccess' value='always'></param><embed src='http://www.youtube.com/v/8qp_VSmV17I&hl=es_ES&fs=1&rel=0' type='application/x-shockwave-flash' allowscriptaccess='always' allowfullscreen='false' width='180' height='160'></embed></object>");
-						HTML album = new HTML(
-								"<embed type='application/x-shockwave-flash' src='http://picasaweb.google.com/s/c/bin/slideshow.swf' width='180' height='160' flashvars='host=picasaweb.google.com&hl=es&feat=flashalbum&RGB=0x000000&feed=http%3A%2F%2Fpicasaweb.google.com%2Fdata%2Ffeed%2Fapi%2Fuser%2FVictorCabreraZolla%2Falbumid%2F5447950544182068785%3Falt%3Drss%26kind%3Dphoto%26hl%3Des' pluginspage='http://www.macromedia.com/go/getflashplayer'></embed>");
-						HorizontalPanel hp = new HorizontalPanel();
-						hp.setSpacing(20);
-
-						VerticalPanel vp = new VerticalPanel();
-						vp.add(new HTML("video"));
-						vp.add(video);
-						vp.add(new HTML("diapositiva"));
-						vp.add(album);
-						hp.add(new HTML(
-								"<p style=\"text-align: justify;\">Este parque se construyo como un esfuerzo mancomunado del Sr. Alcalde  Jorge Jumanor  con los vecinos, haciendo realidad un sueño muchas veces  postergado por las anteriores autoridadede de Turno</p><p style=\"text-align: justify;\">La Obra se empezo  a contruir a inicios del año 2009 culminandose satisfactoriamente a  mediados del  2009 en el aniversario del Distrito Gregorio  Albarracion  Lanchipa</p>"));
-						hp.add(vp);
-
-						// creamos la Ventana de Informacion
-						InfoWindowContent info = new InfoWindowContent(img);
-						info.setMaxTitle("Parque Perez Gamboa");
-						info.setMaxContent(hp);
-						map.getInfoWindow().open(mrk.getLatLng(), info);
+			public void onSuccess(final Vector<Coordenada> result) {
+				Maps.loadMapsApi("", "2", false, new Runnable() {
+					public void run() {
+						mappingPanel.clear();
+						disclosureMap.setOpen(true);
+						mappingPanel.add(buildUi());
 					}
-				});*/
-				map.addOverlay(polilinea);
-				disclosureMap.setOpen(true);
+
+					private Widget buildUi() {
+						map = new MapWidget();
+						map.setSize("400px", "400px");
+						// añadimos control selector de tipo de mapa
+						map.addControl(new MapTypeControl());
+						// añadimos control de desplazamiento con zoom
+						map.addControl(new LargeMapControl());
+						// añadimos control escala de mapa
+						map.addControl(new ScaleControl());
+						// permitimos zoom com ratón
+						map.setScrollWheelZoomEnabled(true);
+
+						// limpiamos el mapa antes de introducir los nuevos datos
+						map.clearOverlays();
+						
+						// creamos las coordenadas
+						int i = 0;
+						Iterator<Coordenada> it = result.iterator();
+						while(it.hasNext()){
+							Coordenada coord = it.next();
+							listaLatLng[i] = LatLng.newInstance(coord.getLatitud(), coord.getLongitud());
+							i++;
+						}
+						// creamos la polilínea
+						polilinea = new Polyline(listaLatLng);
+						
+						// mostramos el mapa centrado con las coordenas iniciales
+						map.setCenter(listaLatLng[0]);
+
+						// establecemos en nivel de zoom
+						map.setZoomLevel(12);
+						
+						// creamos un marcador en la coordenada inicial
+						/*mrk = new Marker(listaLatLng[0]);
+						map.addOverlay(mrk);
+						mrk.addMarkerClickHandler(new MarkerClickHandler() {
+
+							@Override
+							public void onClick(MarkerClickEvent event) {
+								// Widget en InfoWindow Normal
+								Image img = new Image();
+								img.setUrl("http://lh6.ggpht.com/_oxEB1W000Zc/S5sCOsecjdI/AAAAAAAAAGg/_CDb-vUE7gs/s800/13%20DE%20SET.%20%20PLAZA%20ATMAT.JPG");
+								img.setWidth("235px");
+								img.setHeight("267px");
+
+								// Widget en InfoWindow Maximizado
+								HTML video = new HTML(
+										"<object width='180' height='160'><param name='movie' value='http://www.youtube.com/v/8qp_VSmV17I&hl=es_ES&fs=1&rel=0'></param><param name='allowFullScreen' value='true'></param><param name='allowscriptaccess' value='always'></param><embed src='http://www.youtube.com/v/8qp_VSmV17I&hl=es_ES&fs=1&rel=0' type='application/x-shockwave-flash' allowscriptaccess='always' allowfullscreen='false' width='180' height='160'></embed></object>");
+								HTML album = new HTML(
+										"<embed type='application/x-shockwave-flash' src='http://picasaweb.google.com/s/c/bin/slideshow.swf' width='180' height='160' flashvars='host=picasaweb.google.com&hl=es&feat=flashalbum&RGB=0x000000&feed=http%3A%2F%2Fpicasaweb.google.com%2Fdata%2Ffeed%2Fapi%2Fuser%2FVictorCabreraZolla%2Falbumid%2F5447950544182068785%3Falt%3Drss%26kind%3Dphoto%26hl%3Des' pluginspage='http://www.macromedia.com/go/getflashplayer'></embed>");
+								HorizontalPanel hp = new HorizontalPanel();
+								hp.setSpacing(20);
+
+								VerticalPanel vp = new VerticalPanel();
+								vp.add(new HTML("video"));
+								vp.add(video);
+								vp.add(new HTML("diapositiva"));
+								vp.add(album);
+								hp.add(new HTML(
+										"<p style=\"text-align: justify;\">Este parque se construyo como un esfuerzo mancomunado del Sr. Alcalde  Jorge Jumanor  con los vecinos, haciendo realidad un sueño muchas veces  postergado por las anteriores autoridadede de Turno</p><p style=\"text-align: justify;\">La Obra se empezo  a contruir a inicios del año 2009 culminandose satisfactoriamente a  mediados del  2009 en el aniversario del Distrito Gregorio  Albarracion  Lanchipa</p>"));
+								hp.add(vp);
+
+								// creamos la Ventana de Informacion
+								InfoWindowContent info = new InfoWindowContent(img);
+								info.setMaxTitle("Parque Perez Gamboa");
+								info.setMaxContent(hp);
+								map.getInfoWindow().open(mrk.getLatLng(), info);
+							}
+						});*/
+						map.addOverlay(polilinea);
+						return map;
+					}
+				});
 			}
 		};
 
 		// Make the call to the stock price service.
-		xmlService.getCoordenadas(Integer.toString(selected), "", callback);
+		xmlService.getCoordenadas(Integer.toString(selected), name, callback);
 	}
 	
 }

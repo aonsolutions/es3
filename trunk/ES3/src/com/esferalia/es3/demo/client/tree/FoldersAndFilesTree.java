@@ -72,7 +72,7 @@ public class FoldersAndFilesTree extends Composite{
 					}
 					else { // Si es una misión
 						SelectedMissionEvent selectedMissionEvent= new SelectedMissionEvent();
-						String missionName = selectionModel.getSelectedObject().userObject.getName();
+						String missionName = selectionModel.getSelectedObject().getUserObject().getName();
 						selectedMissionEvent.setNode(selectionModel.getSelectedObject());
 						selectedMissionEvent.setName(missionName);
 						eventBus.fireEvent(selectedMissionEvent);
@@ -86,7 +86,7 @@ public class FoldersAndFilesTree extends Composite{
 					return "es3/mission/" + absolutePath.substring(beginIndex+8);
 //					beginIndex = absolutePath.lastIndexOf("public\\");
 //					return "es3/" + absolutePath.substring(beginIndex+7);
-//					beginIndex = absolutePath.lastIndexOf("public/");
+//					beginIndex = absolutePath.lastIndexOf("mission/");
 //					return "http://lighttpd.esferalia.net/" + absolutePath.substring(beginIndex);
 				}
 			});

@@ -1,7 +1,12 @@
 package com.esferalia.es3.demo.client;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import com.esferalia.es3.demo.client.dto.Action;
 import com.esferalia.es3.demo.client.dto.File;
+import com.esferalia.es3.demo.client.dto.FileType;
 import com.esferalia.es3.demo.client.event.FileEvent;
 
 import com.google.gwt.core.client.GWT;
@@ -121,6 +126,32 @@ public class CreateFileWidget extends DialogBox {
 						originalName = upload.getFilename().substring(beginIndex+1);
 					}else
 						originalName = upload.getFilename();
+					
+					if (originalName.endsWith(".mp4") || originalName.endsWith(".flv") || originalName.endsWith(".ogv") || originalName.endsWith(".webm")){
+						file.setFileType(FileType.video);
+					}
+					// Video OGV y WEBM
+					// Audio MP3 y OGG
+					else if (originalName.endsWith(".mp3") || originalName.endsWith(".ogg")){
+						file.setFileType(FileType.audio);
+					}
+					// Imagen JPG y PNG
+					else if (originalName.endsWith(".jpg") || originalName.endsWith(".png")){
+						file.setFileType(FileType.imagen);
+					}
+					// Coordenadas XML
+					else if (originalName.endsWith(".xml")){
+						file.setFileType(FileType.cartografia);
+					}
+					// Documentos de texto
+					else if (originalName.endsWith(".pdf")){
+						file.setFileType(FileType.documento);
+					}
+					else {
+						Window.alert("El archivo que intenta subir no tiene un formato compatible con la aplicación");
+						submitEvent.cancel();
+					}
+					
 					file.setName(originalName);
 					file.setDescription(descriptionTextArea.getText());
 					file.setDate_time(startDatePicker.getValue());

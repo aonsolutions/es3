@@ -1,5 +1,7 @@
 package com.esferalia.es3.demo.client.dto;
 
-public enum Action {
+import java.io.Serializable;
+
+public enum Action implements Serializable{
 	CREATE, UPDATE, DELETE
 }

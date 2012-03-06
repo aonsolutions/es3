@@ -12,6 +12,8 @@ public class File implements Serializable{
 	private Date date_time;
 	private String MD5;
 	
+	private FileType fileType;
+	
 	public File(){}
 	
 	public int getId() {
@@ -59,6 +61,14 @@ public class File implements Serializable{
 
 	public void setMD5(String mD5) {
 		MD5 = mD5;
+	}
+
+	public FileType getFileType() {
+		return fileType;
+	}
+
+	public void setFileType(FileType fileType) {
+		this.fileType = fileType;
 	}
 
 }
