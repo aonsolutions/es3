@@ -3,6 +3,7 @@ package com.esferalia.es3.demo.client.tree;
 import java.io.Serializable;
 import java.util.Vector;
 
+import com.esferalia.es3.demo.client.dto.FileType;
 import com.esferalia.es3.demo.client.dto.FolderOrFile;
 
 public class CustomNode implements Serializable{
@@ -10,16 +11,22 @@ public class CustomNode implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	/** this node's parent, or null if this node has no parent */
-    protected CustomNode parent;
+	private CustomNode parent;
 
     /** array of children, may be null if this node has no children */
-    protected Vector<CustomNode> children;
+	private Vector<CustomNode> children;
 
     /** optional user object */
-    protected FolderOrFile userObject;
+	private FolderOrFile userObject;
 
     /** true if the node is able to have children */
-    protected boolean allowsChildren;
+	private boolean allowsChildren;
+	
+    /** true if the node is a locked folder */
+	private boolean lockedFolder;
+	
+    /** if CustomNode is a file, his type */
+	private FileType filetype;
     
     /**
      * Creates a tree node that has no parent and no children, but which
@@ -347,5 +354,21 @@ public class CustomNode implements Serializable{
 
 	public void setUserObject(FolderOrFile userObject) {
 		this.userObject = userObject;
+	}
+
+	public boolean isLockedFolder() {
+		return lockedFolder;
+	}
+
+	public void setLockedFolder(boolean lockedFolder) {
+		this.lockedFolder = lockedFolder;
+	}
+
+	public FileType getFiletype() {
+		return filetype;
+	}
+
+	public void setFiletype(FileType filetype) {
+		this.filetype = filetype;
 	}
 }

@@ -23,13 +23,10 @@ public class EjemploReadDomXml {
 	private DocumentBuilderFactory dbFactory;
 	private DocumentBuilder dBuilder;
 	private Document doc;
-	
-	private String xmlPath = "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\mission\\21\\38.xml";
 
-	public EjemploReadDomXml(String xmlPath){
+	public EjemploReadDomXml(String name){
 		try {
-			// fXmlFile = new File("xmlPath");
-			fXmlFile = new File(this.xmlPath);
+			fXmlFile = new File(name);
 			dbFactory = DocumentBuilderFactory.newInstance();
 			dBuilder = dbFactory.newDocumentBuilder();
 			doc = dBuilder.parse(fXmlFile);

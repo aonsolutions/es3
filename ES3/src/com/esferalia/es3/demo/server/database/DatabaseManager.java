@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.Date;
 
 import com.esferalia.es3.demo.client.dto.File;
+import com.esferalia.es3.demo.client.dto.FileType;
 import com.esferalia.es3.demo.client.dto.Mission;
 
 public class DatabaseManager extends DatabaseConnection {
@@ -146,9 +147,10 @@ public class DatabaseManager extends DatabaseConnection {
 			file.setId(rs1.getInt(1));
 			file.setMission(rs1.getInt(2));
 			file.setName(rs1.getString(3));
-			file.setDescription(rs1.getString(4));
-			file.setDate_time(rs1.getDate(5));
-			file.setMD5(rs1.getString(6));
+			file.setFileType(FileType.valueOf(rs1.getString(4)));
+			file.setDescription(rs1.getString(5));
+			file.setDate_time(rs1.getDate(6));
+			file.setMD5(rs1.getString(7));
 			
 			rs1.close();
 //			connection.close();
@@ -158,7 +160,7 @@ public class DatabaseManager extends DatabaseConnection {
 		return file;
 	}
 	
-	public void insertFile(Integer identMission, String name, String description, Date date, String MD5) throws SQLException {
+	public void insertFile(Integer identMission, String name, FileType type, String description, Date date, String MD5) throws SQLException {
 		Statement stmt = null;
 		
 		int mission = identMission.intValue();
@@ -171,6 +173,7 @@ public class DatabaseManager extends DatabaseConnection {
 //					"  `id`," +
 					"  `mission`," +
 					"  `name`," +
+					"  `type`," +
 					"  `description`," +
 					"  `date_time`," +
 					"  `md5`" +
@@ -179,6 +182,7 @@ public class DatabaseManager extends DatabaseConnection {
 //					"  :id," +
 					"  '" + mission + "'," +
 					"  '" + name + "'," +
+					"  '" + type.toString() + "'," +
 					"  '" + description + "'," +
 					"  '" + date_time + "'," +
 					"  '" + MD5 +

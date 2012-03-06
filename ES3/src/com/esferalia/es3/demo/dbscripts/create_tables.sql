@@ -19,10 +19,11 @@ CREATE TABLE `mission` (
 CREATE TABLE `file` (
   `id` int(4) NOT NULL auto_increment COMMENT 'Identificador unico del archivo',
   `mission` int(4) NOT NULL COMMENT 'Identificador unico de la mision',
-  `name` varchar(64) default NULL COMMENT 'Nombre original del archivo',
-  `description` TEXT collate latin1_spanish_ci default NULL COMMENT 'Descripcion del archivo',
-  `date_time` DATETIME NOT NULL COMMENT 'Fecha de inicio del archivo',
-  `md5` varchar(128) NOT NULL COMMENT 'MD5 del archivo',
+  `name` varchar(64) collate latin1_spanish_ci default NULL COMMENT 'Nombre original del archivo',
+  `type` varchar(15) collate latin1_spanish_ci default NULL COMMENT 'Tipo de archivo: imagen, video, audio, cartografia, documento',
+  `description` text collate latin1_spanish_ci COMMENT 'Descripcion del archivo',
+  `date_time` datetime NOT NULL COMMENT 'Fecha de inicio del archivo',
+  `md5` varchar(128) collate latin1_spanish_ci NOT NULL COMMENT 'MD5 del archivo',
   PRIMARY KEY  (`id`),
   KEY `IDX_FILE_MISSION` (`mission`),
   CONSTRAINT `FK_FILE_MISSION` FOREIGN KEY (`mission`) REFERENCES `mission` (`id`) ON DELETE CASCADE

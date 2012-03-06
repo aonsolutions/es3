@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Iterator;
 //import java.util.Iterator;
 
+import com.esferalia.es3.demo.client.dto.FileType;
 import com.esferalia.es3.demo.client.dto.FolderOrFile;
 import com.esferalia.es3.demo.client.service.TreeService;
 import com.esferalia.es3.demo.client.tree.CustomNode;
@@ -34,16 +35,31 @@ public class TreeServiceImpl extends RemoteServiceServlet implements
 		File[] children = new File(directory).listFiles();
 		// loop through each
 		for (int i = 0; i < children.length; i++) {
-			FolderOrFile fof = new FolderOrFile(children[i].getName(),
-					children[i].getPath());
+			FolderOrFile fof = new FolderOrFile(children[i].getName(), children[i].getPath());
 			CustomNode node = new CustomNode(fof);
 			if (children[i].isDirectory()) {
+				if (children[i].getName().endsWith("video")){
+					node.setFiletype(FileType.video);
+					node.setLockedFolder(true);
+				} else if (children[i].getName().endsWith("audio")){
+					node.setFiletype(FileType.audio);
+					node.setLockedFolder(true);
+				} else if (children[i].getName().endsWith("imagen")){
+					node.setFiletype(FileType.imagen);
+					node.setLockedFolder(true);
+				} else if (children[i].getName().endsWith("documento")){
+					node.setFiletype(FileType.documento);
+					node.setLockedFolder(true);
+				} else {
+					node.setFiletype(FileType.cartografia);
+					node.setLockedFolder(true);
+				}
 				// add as a child node
 				parent.add(node);
 				// call again for the subdirectory
 				listAllFiles(children[i].getPath(), node);
 
-			} else if (!(children[i].getName().endsWith(".js") || children[i].getName().endsWith(".swf"))) {
+			} else {
 				// add it as a node and do nothing else
 				node.setAllowsChildren(false);
 				parent.add(node);
