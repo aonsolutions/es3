@@ -21,7 +21,7 @@ import org.apache.commons.io.FilenameUtils;
 public class FileUploadServlet extends HttpServlet {
 
 	// FIXME Cambiar el Path para las pruebas en Tomcat
-	private static final String UPLOAD_DIRECTORY = "C:\\temp\\";
+	private static final String UPLOAD_DIRECTORY = "/srv/www/lighttpd/es3/temp/";
 			// "C:\\temp\\";
 			// "/srv/www/lighttpd/es3/temp/";
 

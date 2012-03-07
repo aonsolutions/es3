@@ -9,6 +9,8 @@ import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DecoratedPopupPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -82,12 +84,15 @@ public class FoldersAndFilesTree extends Composite{
 				// FIXME absolutePath and relativePath
 				private String getRelativePath(String absolutePath) {
 					int beginIndex;
-					beginIndex = absolutePath.lastIndexOf("mission\\");
-					return "es3/mission/" + absolutePath.substring(beginIndex+8);
+					// Localhost
+//					beginIndex = absolutePath.lastIndexOf("mission\\");
+//					return "es3/mission/" + absolutePath.substring(beginIndex+8);
 //					beginIndex = absolutePath.lastIndexOf("public\\");
 //					return "es3/" + absolutePath.substring(beginIndex+7);
-//					beginIndex = absolutePath.lastIndexOf("mission/");
-//					return "http://lighttpd.esferalia.net/" + absolutePath.substring(beginIndex);
+					// Tomcat
+					beginIndex = absolutePath.lastIndexOf("mission/");
+					return "http://192.168.2.107:80/es3/" + absolutePath.substring(beginIndex);
+					// return "http://lighttpd.esferalia.net/es3/" + absolutePath.substring(beginIndex);
 				}
 			});
 

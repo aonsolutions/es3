@@ -66,7 +66,7 @@ import fr.hd3d.html5.video.client.VideoWidget;
 public class StreamingWeb implements EntryPoint {
 	
 	// FIXME directoryPath
-	private final String BASE_PATH = "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\mission";
+	private final String BASE_PATH = "/srv/www/lighttpd/es3/mission/"; 
 			// "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\mission";
 			// "/srv/www/lighttpd/es3/mission/"; 
 
@@ -956,6 +956,7 @@ public class StreamingWeb implements EntryPoint {
 			public void onFailure(Throwable caught) {
 				DecoratedPopupPanel popup = new DecoratedPopupPanel();
 				popup.setTitle("ERROR: No se han podido obtener los datos del recorrido");
+				popup.add(new Label("ERROR: No se han podido obtener los datos del recorrido"));
 				popup.setAutoHideEnabled(true);
 				popup.setGlassEnabled(true);
 				popup.center();
@@ -981,6 +982,7 @@ public class StreamingWeb implements EntryPoint {
 			public void onFailure(Throwable caught) {
 				DecoratedPopupPanel popup = new DecoratedPopupPanel();
 				popup.setTitle("ERROR: No se han podido obtener las coordenadas");
+				popup.add(new Label("ERROR: No se han podido obtener las coordenadas"));
 				popup.setAutoHideEnabled(true);
 				popup.setGlassEnabled(true);
 				popup.center();

@@ -2,6 +2,7 @@ package com.esferalia.es3.demo.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -26,7 +27,9 @@ public class EjemploReadDomXml {
 
 	public EjemploReadDomXml(String name){
 		try {
-			fXmlFile = new File(name);
+			// FIXME For local XML Path
+			// fXmlFile = new File(name);
+			fXmlFile = new File(URI.create(name));
 			dbFactory = DocumentBuilderFactory.newInstance();
 			dBuilder = dbFactory.newDocumentBuilder();
 			doc = dBuilder.parse(fXmlFile);

@@ -1,9 +1,5 @@
 package com.esferalia.es3.demo.client;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 import com.esferalia.es3.demo.client.dto.Action;
 import com.esferalia.es3.demo.client.dto.File;
 import com.esferalia.es3.demo.client.dto.FileType;
