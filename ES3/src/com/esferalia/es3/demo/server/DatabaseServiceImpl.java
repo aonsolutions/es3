@@ -25,7 +25,7 @@ public class DatabaseServiceImpl extends RemoteServiceServlet implements
 	// FIXME Logging vars Path
 	static private FileHandler fileTxt;
 	private final static Logger LOGGER = Logger.getLogger(DatabaseServiceImpl.class.getName());
-	private final String LOG_PATH = "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\Logging.txt";
+	private final String LOG_PATH = "/srv/www/lighttpd/es3/Logging.txt";
 			// "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\Logging.txt";
 			// "/srv/www/lighttpd/es3/Logging.txt";
 	
