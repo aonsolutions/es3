@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.esferalia.es3</groupId>
-	<artifactId>es3-demo</artifactId>
+	<artifactId>es3</artifactId>
 	<packaging>war</packaging>
 	<version>0.1-SNAPSHOT</version>
 	<description>Es3 demo</description>
@@ -17,7 +17,6 @@
 		<maven.build.timestamp.format>dd/MM/yyyy</maven.build.timestamp.format>
 	</properties>
 	<build>
-		<finalName>es3</finalName>
 		<plugins>
 
                         <plugin>
@@ -52,6 +51,14 @@
 					</execution>
 				</executions>
 			</plugin>
+<plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>tomcat-maven-plugin</artifactId>
+        <configuration>
+		<url>http://192.168.2.107:8080/manager</url>
+        </configuration>
+</plugin>
+
 		</plugins>
 	</build>
 
