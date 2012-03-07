@@ -1,2 +1,0 @@
-serviceClass: com.esferalia.es3.demo.client.GreetingService
-path: 0A5BC1ABEDE4DC6917F26A2468281774.gwt.rpc
