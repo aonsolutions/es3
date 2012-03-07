@@ -6,8 +6,8 @@
 	<artifactId>es3</artifactId>
 	<packaging>war</packaging>
 	<version>0.1-SNAPSHOT</version>
-	<description>Es3 demo</description>
-	<name>ES3 DEMO</name>
+	<description>Es3</description>
+	<name>ES3</name>
 	<scm>
 		<developerConnection>scm:svn:http://dev.esferalia.com/repos/es3/trunk/ES3</developerConnection>
 		<connection>scm:svn:http://dev.esferalia.com/repos/es3/trunk/ES3</connection>
