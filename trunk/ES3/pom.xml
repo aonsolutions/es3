@@ -8,6 +8,11 @@
 	<version>0.1-SNAPSHOT</version>
 	<description>Es3 demo</description>
 	<name>ES3 DEMO</name>
+	<scm>
+		<developerConnection>scm:svn:http://dev.esferalia.com/repos/es3/trunk/ES3</developerConnection>
+		<connection>scm:svn:http://dev.esferalia.com/repos/es3/trunk/ES3</connection>
+		<url>http://dev.esferalia.com/websvn/wsvn/es3/trunk/ES3</url>
+	</scm>
 	<properties>
 		<maven.build.timestamp.format>dd/MM/yyyy</maven.build.timestamp.format>
 	</properties>
@@ -15,7 +20,7 @@
 		<finalName>es3</finalName>
 		<plugins>
 
-                        <!--plugin>
+                        <plugin>
                                 <groupId>org.codehaus.mojo</groupId>
                                 <artifactId>buildnumber-maven-plugin</artifactId>
                                 <version>1.0-beta-4</version>
@@ -31,7 +36,7 @@
                                         <doCheck>false</doCheck>
                                         <doUpdate>false</doUpdate>
                                 </configuration>
-                        </plugin-->
+                        </plugin>
 
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
