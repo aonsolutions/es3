@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+              http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5"
+         xmlns="http://java.sun.com/xml/ns/javaee">
+
+  <!-- Default page to serve -->
+  <welcome-file-list>
+    <welcome-file>ES3.html</welcome-file>
+  </welcome-file-list>
+
+  <!-- Servlets -->
+  <servlet>
+    <servlet-name>TreeService</servlet-name>
+    <servlet-class>com.esferalia.es3.demo.server.TreeServiceImpl</servlet-class>
+  </servlet>
+    <servlet-mapping>
+    <servlet-name>TreeService</servlet-name>
+    <url-pattern>/es3/tree</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+  	<servlet-name>DatabaseService</servlet-name>
+  	<servlet-class>com.esferalia.es3.demo.server.DatabaseServiceImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>DatabaseService</servlet-name>
+  	<url-pattern>/es3/DatabaseService</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+  	<servlet-name>FileUpload</servlet-name>
+  	<servlet-class>com.esferalia.es3.demo.server.FileUploadServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>FileUpload</servlet-name>
+  	<url-pattern>/es3/upload</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+  	<servlet-name>XMLService</servlet-name>
+  	<servlet-class>com.esferalia.es3.demo.server.XMLServiceImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>XMLService</servlet-name>
+  	<url-pattern>/es3/xml</url-pattern>
+  </servlet-mapping>
+  
+</web-app>
