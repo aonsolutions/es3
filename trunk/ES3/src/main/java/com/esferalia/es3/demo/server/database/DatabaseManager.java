@@ -1,25 +1,51 @@
 package com.esferalia.es3.demo.server.database;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.Date;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.esferalia.es3.demo.client.dto.File;
 import com.esferalia.es3.demo.client.dto.FileType;
 import com.esferalia.es3.demo.client.dto.Mission;
+import com.esferalia.es3.demo.server.DatabaseServiceImpl;
 
 public class DatabaseManager extends DatabaseConnection {
 
 	private Connection connection;
 	
+	// FIXME Logging vars Path
+/*	static private FileHandler fileTxt;
+	private final static Logger LOGGER = Logger.getLogger(DatabaseServiceImpl.class.getName());
+	private final String LOG_PATH = "/srv/www/lighttpd/es3/Logging.txt";
+		// "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\Logging.txt";
+		// "/srv/www/lighttpd/es3/Logging.txt";
+*/	
 	public DatabaseManager() {
+/*		Logger logger = Logger.getLogger("");
+		logger.setLevel(Level.ALL);
+		try {
+			java.io.File logFile = new java.io.File(LOG_PATH);
+			logFile.createNewFile();
+			fileTxt = new FileHandler(LOG_PATH);
+			logger.addHandler(fileTxt);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}*/
 	}
 
 	public void getConnection() throws SQLException {
 		connection = getConn();
+/*		if (connection == null)
+			LOGGER.severe("ERROR: I CAN'T GET A MYSQL DATABASE CONNECTION");
+		else
+			LOGGER.severe("I GET THE MYSQL DATABASE CONNECTION");*/
 	}
 	
 	public Mission selectMission(Integer ident) throws SQLException {
@@ -58,7 +84,7 @@ public class DatabaseManager extends DatabaseConnection {
 		
 		java.sql.Date start_date = new java.sql.Date(start.getTime());
 		java.sql.Date end_date = new java.sql.Date(end.getTime());
-
+		
 		try {
 			stmt = connection.createStatement();
 			String query =

@@ -1,23 +1,6 @@
 /** Add css rules here for your application. */
 
-
 /** Example rules used by the template application (remove for your app) */
-.h1 {
-	color: #777777;
-	margin: 40px 0px;
-	font-size: 2em;
-	font-weight: bold;
-	text-align: center;
-}
-
-.h3 {
-	color: #777777;
-	margin: 10px 1px;
-	font-size: 1em;
-	font-weight: bold;
-	text-align: center;
-}
-
 .sendButton {
   display: block;
   font-size: 16pt;
@@ -39,4 +22,84 @@
 /** Set ids using widget.getElement().setId("idOfElement") */
 #closeButton {
   margin: 15px 6px 6px;
+}
+
+
+/** ---------------------------------------------------------------------------------------- */
+/** ------ NUEVAS ------ */
+/** ---------------------------------------------------------------------------------------- */
+
+.dockPanel {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.dockPanel .titleLabel {
+	color: #CC6633;
+	font-family: sans-serif;
+	font-size: 14px;
+	font-weight: bolder;
+	margin-right: 20px;
+}
+
+.mainHeader {
+}
+
+/** Agregar un logo a un botón con texto
+.crearButton {
+	background: url(es3/video.png) no-repeat 10px 8px;
+	text-indent: 30px;
+	display: block;
+} */
+
+.separadorHeaderNorth {
+	background: gray;
+    width: 100%;
+    height: 5px;
+}
+
+.separadorHeaderSouth {
+	background: url(es3/separadorHeader.png);
+    width: 100%;
+    height: 15px;
+    font-size: 9px;
+    color: white;
+}
+
+.horizontalNorthPanel {
+	width: 100%;
+}
+
+.menuItemError {
+	padding: 2px 40px 2px 1px;
+	font-family: Arial Unicode MS, Arial, sans-serif;
+	color: #D8D8D8;
+}
+
+.gwt-MenuBar {
+  cursor: default;
+}
+
+.gwt-MenuBar .gwt-MenuItem {
+  cursor: default;
+  font-family: Arial Unicode MS, Arial, sans-serif;
+}
+
+.gwt-MenuBar .gwt-MenuItem-selected {
+  background: #E3E8F3;
+}
+
+
+.gwt-MenuBar .gwt-MenuBar-horizontal {
+  background: #e3e8f3 url(es3/menuBar.png) repeat-x 0px -2003px;
+  border: 1px solid #e0e0e0;
+}
+
+.gwt-SplitLayoutPanel .gwt-SplitLayoutPanel-HDragger {
+  background: #e7e7e7 url(es3/separadorHeader.png) center center no-repeat;
+  cursor: col-resize;
+}
+
+.errorLabel {
+	color: red;
 }

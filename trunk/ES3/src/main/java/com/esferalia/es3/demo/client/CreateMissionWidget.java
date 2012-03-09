@@ -31,6 +31,19 @@ public class CreateMissionWidget extends DialogBox{
 	private DateBox endDatePicker;
 	private Button okButton;
 	private Button cancelButton;
+	private VerticalPanel verticalPanel;
+	private HorizontalPanel horizontalPanel;
+	private Label lblNewLabel;
+	private Label lblNewLabel_1;
+	private Label lblNewLabel_2;
+	private VerticalPanel verticalPanel_1;
+	private Label lblNewLabel_3;
+	private VerticalPanel vPanel;
+	private VerticalPanel verticalPanel_2;
+	private Label lblNewLabel_4;
+	private VerticalPanel vPanel_1;
+	private HorizontalPanel buttonPanel;
+	private Label errorLabel;
 	
 	public CreateMissionWidget(final HandlerManager eventbus){
 		mainPanel = new VerticalPanel();
@@ -40,39 +53,39 @@ public class CreateMissionWidget extends DialogBox{
 		titleLabel = new Label("Crear nueva misión");
 		mainPanel.add(titleLabel);
 		
-		HorizontalPanel horizontalPanel = new HorizontalPanel();
+		horizontalPanel = new HorizontalPanel();
 		horizontalPanel.setSpacing(5);
 		mainPanel.add(horizontalPanel);
 		
-		VerticalPanel verticalPanel = new VerticalPanel();
+		verticalPanel = new VerticalPanel();
 		verticalPanel.setSpacing(5);
 		horizontalPanel.add(verticalPanel);
 		
-		Label lblNewLabel = new Label("Nombre");
+		lblNewLabel = new Label("Nombre");
 		verticalPanel.add(lblNewLabel);
 		
 		nombreTextBox = new TextBox();
 		nombreTextBox.setMaxLength(64);
 		verticalPanel.add(nombreTextBox);
 		
-		Label lblNewLabel_1 = new Label("Alias");
+		lblNewLabel_1 = new Label("Alias");
 		verticalPanel.add(lblNewLabel_1);
 		
 		aliasTextBox = new TextBox();
 		aliasTextBox.setMaxLength(32);
 		verticalPanel.add(aliasTextBox);
 		
-		Label lblNewLabel_2 = new Label("Descripción");
+		lblNewLabel_2 = new Label("Descripción");
 		verticalPanel.add(lblNewLabel_2);
 		
 		descriptionTextArea = new TextArea();
 		verticalPanel.add(descriptionTextArea);
 		
-		VerticalPanel verticalPanel_1 = new VerticalPanel();
+		verticalPanel_1 = new VerticalPanel();
 		verticalPanel_1.setSpacing(5);
 		horizontalPanel.add(verticalPanel_1);
 		
-		Label lblNewLabel_3 = new Label("Fecha inicio");
+		lblNewLabel_3 = new Label("Fecha inicio");
 		verticalPanel_1.add(lblNewLabel_3);
 		
 	    // Create a basic date picker
@@ -80,15 +93,15 @@ public class CreateMissionWidget extends DialogBox{
 		startDatePicker.setFormat(new DefaultFormat(com.google.gwt.i18n.client.DateTimeFormat.getFormat("dd/MM/yyyy")));
 
 	    // Combine the widgets into a panel and return them
-	    VerticalPanel vPanel_1 = new VerticalPanel();
-	    vPanel_1.add(startDatePicker);
-		verticalPanel_1.add(vPanel_1);
+	    vPanel = new VerticalPanel();
+	    vPanel.add(startDatePicker);
+		verticalPanel_1.add(vPanel);
 		
-		VerticalPanel verticalPanel_2 = new VerticalPanel();
+		verticalPanel_2 = new VerticalPanel();
 		verticalPanel_2.setSpacing(5);
 		horizontalPanel.add(verticalPanel_2);
 		
-		Label lblNewLabel_4 = new Label("Fecha fin");
+		lblNewLabel_4 = new Label("Fecha fin");
 		verticalPanel_2.add(lblNewLabel_4);
 		
 	    // Create a basic date picker
@@ -96,11 +109,16 @@ public class CreateMissionWidget extends DialogBox{
 		endDatePicker.setFormat(new DefaultFormat(com.google.gwt.i18n.client.DateTimeFormat.getFormat("dd/MM/yyyy")));
 
 	    // Combine the widgets into a panel and return them
-	    VerticalPanel vPanel_2 = new VerticalPanel();
-	    vPanel_2.add(endDatePicker);
-		verticalPanel_2.add(vPanel_2);
+	    vPanel_1 = new VerticalPanel();
+	    vPanel_1.add(endDatePicker);
+		verticalPanel_2.add(vPanel_1);
 		
-		HorizontalPanel buttonPanel = new HorizontalPanel();
+		errorLabel = new Label();
+		errorLabel.setStyleName("errorLabel");
+		errorLabel.setVisible(false);
+		mainPanel.add(errorLabel);
+		
+		buttonPanel = new HorizontalPanel();
 		buttonPanel.setSpacing(10);
 		buttonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		mainPanel.add(buttonPanel);
@@ -108,17 +126,29 @@ public class CreateMissionWidget extends DialogBox{
 		okButton = new Button("Aceptar");
 		okButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				MissionEvent createMissionEvent = new MissionEvent();
-				Mission mision = new Mission();
-				mision.setName(nombreTextBox.getText());
-				mision.setAlias(aliasTextBox.getText());
-				mision.setDescription(descriptionTextArea.getText());
-				mision.setStart_date(startDatePicker.getValue());
-				mision.setEnd_date(endDatePicker.getValue());
-				createMissionEvent.setAccion(Action.CREATE);
-				createMissionEvent.setMision(mision);
-				eventbus.fireEvent(createMissionEvent);
-				hide();
+				if (nombreTextBox.getText().trim().isEmpty()
+						|| startDatePicker.getValue() == null
+						|| endDatePicker.getValue() == null) {
+					errorLabel.setText("Recuerde que los campos 'Nombre', 'Fecha inicio' y 'Fecha fin' son obligatorios");
+					errorLabel.setVisible(true);
+				} else if (startDatePicker.getValue().compareTo(
+						endDatePicker.getValue()) == 1) {
+					errorLabel.setText("Recuerde que 'Fecha fin' no debe ser anterior a 'Fecha inicio'");
+					errorLabel.setVisible(true);
+				} else {
+					errorLabel.setVisible(false);
+					MissionEvent createMissionEvent = new MissionEvent();
+					Mission mision = new Mission();
+					mision.setName(nombreTextBox.getText());
+					mision.setAlias(aliasTextBox.getText());
+					mision.setDescription(descriptionTextArea.getText());
+					mision.setStart_date(startDatePicker.getValue());
+					mision.setEnd_date(endDatePicker.getValue());
+					createMissionEvent.setAccion(Action.CREATE);
+					createMissionEvent.setMision(mision);
+					eventbus.fireEvent(createMissionEvent);
+					hide();
+				}
 			}
 		});
 		buttonPanel.add(okButton);

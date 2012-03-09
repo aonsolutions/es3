@@ -38,6 +38,18 @@ public class CreateFileWidget extends DialogBox {
 	private Button cancelButton;
 	private File file;
 	private FormPanel form;
+	private HorizontalPanel horizontalPanel;
+	private VerticalPanel verticalPanel;
+	private Label lblNewLabel;
+	private VerticalPanel verticalPanel_1;
+	private Label lblNewLabel_1;
+	private VerticalPanel vPanel;
+	private VerticalPanel uploadPanel;
+	private Label subirLabel;
+	private VerticalPanel panel;
+	private FileUpload upload;
+	private HorizontalPanel buttonPanel;
+	private Label errorLabel;
 	
 	public CreateFileWidget(final int idMision, final HandlerManager eventbus){
 		mainPanel = new VerticalPanel();
@@ -47,41 +59,41 @@ public class CreateFileWidget extends DialogBox {
 		titleLabel = new Label("Añadir archivo a la misión");
 		mainPanel.add(titleLabel);
 		
-		HorizontalPanel horizontalPanel = new HorizontalPanel();
+		horizontalPanel = new HorizontalPanel();
 		horizontalPanel.setSpacing(5);
 		mainPanel.add(horizontalPanel);
 		
-		VerticalPanel verticalPanel = new VerticalPanel();
+		verticalPanel = new VerticalPanel();
 		verticalPanel.setSpacing(5);
 		horizontalPanel.add(verticalPanel);
 		
-		Label lblNewLabel_2 = new Label("Descripción");
-		verticalPanel.add(lblNewLabel_2);
+		lblNewLabel = new Label("Descripción");
+		verticalPanel.add(lblNewLabel);
 		
 		descriptionTextArea = new TextArea();
 		verticalPanel.add(descriptionTextArea);
 		
-		VerticalPanel verticalPanel_1 = new VerticalPanel();
+		verticalPanel_1 = new VerticalPanel();
 		verticalPanel_1.setSpacing(5);
 		horizontalPanel.add(verticalPanel_1);
 		
-		Label lblNewLabel_3 = new Label("Fecha creación");
-		verticalPanel_1.add(lblNewLabel_3);
+		lblNewLabel_1 = new Label("Fecha creación");
+		verticalPanel_1.add(lblNewLabel_1);
 		
 	    // Create a basic date picker
 		startDatePicker = new DateBox();
 		startDatePicker.setFormat(new DefaultFormat(com.google.gwt.i18n.client.DateTimeFormat.getFormat("dd/MM/yyyy")));
 
 	    // Combine the widgets into a panel and return them
-	    VerticalPanel vPanel_1 = new VerticalPanel();
-	    vPanel_1.add(startDatePicker);
-		verticalPanel_1.add(vPanel_1);
+	    vPanel = new VerticalPanel();
+	    vPanel.add(startDatePicker);
+		verticalPanel_1.add(vPanel);
 		
 		// Add FileUploadWidget
-		VerticalPanel uploadPanel = new VerticalPanel();
+		uploadPanel = new VerticalPanel();
 		uploadPanel.setSpacing(10);
 		uploadPanel.setSize("300px", "100px");
-		Label subirLabel = new Label("Seleccione el archivo");
+		subirLabel = new Label("Seleccione el archivo");
 		uploadPanel.add(subirLabel);
 		subirLabel.setWidth("270px");
 		
@@ -96,11 +108,11 @@ public class CreateFileWidget extends DialogBox {
 		form.setMethod(FormPanel.METHOD_POST);
 
 		// Create a panel to hold all of the form widgets.
-		VerticalPanel panel = new VerticalPanel();
+		panel = new VerticalPanel();
 		form.setWidget(panel);
 
 		// Create a FileUpload widget.
-		final FileUpload upload = new FileUpload();
+		upload = new FileUpload();
 		upload.setName("uploadFormElement");
 		panel.add(upload);
 		
@@ -110,8 +122,13 @@ public class CreateFileWidget extends DialogBox {
 				// This event is fired just before the form is submitted. We can
 				// take this opportunity to perform validation.
 				if (upload.getFilename().length() == 0) {
-					Window.alert("Es necesario subir un archivo");
+					errorLabel.setText("Es necesario subir un archivo");
+					errorLabel.setVisible(true);
 					submitEvent.cancel();
+				}
+				else if (startDatePicker.getValue() == null){
+					errorLabel.setText("Recuerde que el campo 'Fecha creación' es obligatorio");
+					errorLabel.setVisible(true);
 				}
 				else {
 					file.setMission(idMision);
@@ -172,7 +189,12 @@ public class CreateFileWidget extends DialogBox {
 		});
 		mainPanel.add(uploadPanel);
 		
-		HorizontalPanel buttonPanel = new HorizontalPanel();
+		errorLabel = new Label();
+		errorLabel.setStyleName("errorLabel");
+		errorLabel.setVisible(false);
+		mainPanel.add(errorLabel);
+		
+		buttonPanel = new HorizontalPanel();
 		buttonPanel.setSpacing(10);
 		buttonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		mainPanel.add(buttonPanel);
