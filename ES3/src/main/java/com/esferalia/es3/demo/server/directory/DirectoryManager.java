@@ -18,13 +18,6 @@ public class DirectoryManager {
 	private final String TEMP_DIR = "/srv/www/lighttpd/es3/temp/";
 			// "C:\\temp\\";
 			// "/srv/www/lighttpd/es3/temp/";
-	private final String LOG_PATH = "/srv/www/lighttpd/es3/Logging.txt";
-			// "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\Logging.txt";
-			// "/srv/www/lighttpd/es3/Logging.txt";
-	
-	// Logging vars
-	static private FileHandler fileTxt;
-	private final static Logger LOGGER = Logger.getLogger(DirectoryManager.class.getName());
 	
 	// FIXME Server path Windows(true) o CentOS(false)
 	private boolean localhost = false;
@@ -69,35 +62,15 @@ public class DirectoryManager {
 	
 	public void createMission(int id) throws IOException{
 		String stringPath = BASE_PATH + String.valueOf(id);
-		
-			Logger logger = Logger.getLogger("");
-			logger.setLevel(Level.ALL);
-			try {
-				File logFile = new File(LOG_PATH);
-				logFile.createNewFile();
-				fileTxt = new FileHandler(LOG_PATH);
-				logger.addHandler(fileTxt);
-			} catch (IOException e) {
-				LOGGER.severe("DIRECTORY MANAGER ERROR: " + e.getMessage());
-				e.printStackTrace();
-			}
-			
-			String param = "PARAMETER ID VALUE: " + id;
-			LOGGER.severe(param);
-			
 		// MÉTODO 1 - Path y Files
 		try {
-			LOGGER.severe("JUST BEFORE CALLING new File(stringPath)");
 			File dir = new File(stringPath);
 			// Path path = Paths.get(stringPath);
-			LOGGER.severe("JUST BEFORE CALLING mkdirs()");
 			dir.mkdirs();
 			// Files.createDirectory(path);
 		} catch (UnsupportedOperationException e){
-			LOGGER.severe("UNSUPPORTED_OPERATION_EXCEPTION: " + e.getMessage());
 			e.printStackTrace();			
 		} catch (SecurityException e) {
-			LOGGER.severe("SECURITY_EXCEPTION: " + e.getMessage());
 			e.printStackTrace();
 		}
 		

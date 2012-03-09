@@ -1,13 +1,16 @@
 package com.esferalia.es3.demo.client.tree;
 
+import com.esferalia.es3.demo.client.Images;
 import com.esferalia.es3.demo.client.event.PlaySelectedEvent;
 import com.esferalia.es3.demo.client.event.SelectedMissionEvent;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.core.client.GWT;
 
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTree;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DecoratedPopupPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -39,9 +42,13 @@ public class FoldersAndFilesTree extends Composite{
 		private SingleSelectionModel<CustomNode> selectionModel;
 		// Proporciona una clave para los elementos de una lista
 		private ProvidesKey<CustomNode> keyProvider;
+		
+		private Images images;
 
 		
 		public CustomTreeModel(final HandlerManager Bus, CustomNode root, CustomNode selectedUINode) {
+			
+			images = (Images) GWT.create(Images.class);
 			
 			this.eventBus = Bus;
 			rangos = new ArrayList<CustomNode>();
@@ -124,12 +131,28 @@ public class FoldersAndFilesTree extends Composite{
 				List<CustomNode> hijos =((CustomNode) value).children();
 				ListDataProvider<CustomNode> dataProvider2 = new ListDataProvider<CustomNode>(hijos);
 
-				// Crear una celda para mostrar al hijo
 				Cell<CustomNode> cell = new AbstractCell<CustomNode>() {
 					public void render(com.google.gwt.cell.client.Cell.Context context,
 							CustomNode value, SafeHtmlBuilder sb) {
-						if (value != null)
-							sb.appendEscaped(value.getUserObject().getName());
+						if (value != null) {
+							String imageHTML;
+							String originalName = value.getUserObject().getName();
+							if (originalName.endsWith(".png") || originalName.endsWith(".jpg"))
+								imageHTML = AbstractImagePrototype.create(images.image()).getHTML();
+							else if (originalName.endsWith(".mp3") || originalName.endsWith(".ogg"))
+								imageHTML = AbstractImagePrototype.create(images.audio()).getHTML();
+							else if (originalName.endsWith(".mp4") || originalName.endsWith(".flv") || originalName.endsWith(".ogv") || originalName.endsWith(".webm"))
+								imageHTML = AbstractImagePrototype.create(images.video()).getHTML();
+							else if (originalName.endsWith(".xml"))
+								imageHTML = AbstractImagePrototype.create(images.gps()).getHTML();
+							else if (originalName.endsWith(".pdf"))
+								imageHTML = AbstractImagePrototype.create(images.doc()).getHTML();
+							else 
+								imageHTML = AbstractImagePrototype.create(images.mission()).getHTML();
+							sb.appendHtmlConstant(imageHTML).appendEscaped(" ");
+					        sb.appendEscaped(value.getUserObject().getName());
+							// sb.appendEscaped(value.getUserObject().getName());
+						}
 					}
 				};
 				return new DefaultNodeInfo<CustomNode>(dataProvider2, cell, selectionModel, null);

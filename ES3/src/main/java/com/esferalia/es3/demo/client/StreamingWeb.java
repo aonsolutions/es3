@@ -62,6 +62,10 @@ import com.google.gwt.user.client.ui.Widget;
 
 import fr.hd3d.html5.video.client.VideoSource;
 import fr.hd3d.html5.video.client.VideoWidget;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.MenuItemSeparator;
 
 public class StreamingWeb implements EntryPoint {
 	
@@ -76,6 +80,20 @@ public class StreamingWeb implements EntryPoint {
 	private HorizontalPanel northPanel;
 	private Image logo;
 	private Label titleLabel;
+	private Image headerImageNorth;
+	private Label versionLabel;
+	private MenuBar menuBar;
+	private MenuItem missionItem;
+	private MenuItem newMissionItem;
+	private MenuItem updateMissionItem;
+	private MenuItem deleteMissionItem;
+	private MenuBar missionSubMenu;
+	private MenuItem fileItem;
+	private MenuBar fileSubMenu;
+	private MenuItem uploadFileItem;
+	private MenuItemSeparator separator;
+	private MenuItem deleteFileItem;
+	private MenuItem updateFileItem;
 	private HorizontalPanel dockCentrePanel;
 	private SplitLayoutPanel splitLayoutPanel;
 	private VerticalPanel splitVerticalPanel;
@@ -114,9 +132,7 @@ public class StreamingWeb implements EntryPoint {
 	private Label footerLabel;
 	
 	private HorizontalPanel horizontalPanel;
-	private HorizontalPanel titlePanel;
 	private VerticalPanel buttonPanel;
-	private Label missionLabel;
 	private HorizontalPanel missionButtonPanel;
 	private Button addFileButton;
 	private Button updateMissionButton;
@@ -124,17 +140,22 @@ public class StreamingWeb implements EntryPoint {
 	private HorizontalPanel fileButtonPanel;
 	private Button updateFileButton;
 	private Button deleteFileButton;
+	
+	private VerticalPanel mappingPanel;
 
 	private Mission selectedMission;
 	private File selectedFile;
 	private CustomNode selectedCustomNode;
+	private boolean isMissionSelected;
+	private boolean isNothingSelected;
 	
 	private TreeServiceAsync treeService = GWT.create(TreeService.class);
 	private DatabaseServiceAsync databaseService = GWT.create(DatabaseService.class);
 	private XMLServiceAsync xmlService = GWT.create(XMLService.class);
 
 	final HandlerManager eventBus = new HandlerManager(null);
-	private VerticalPanel mappingPanel;
+
+
 
 	@Override
 	public void onModuleLoad() {
@@ -143,9 +164,11 @@ public class StreamingWeb implements EntryPoint {
 		
 		initializeHeader();
 		
+		initializeMenuBar();
+		
 		initializeEventBus();
 		
-		initializeMissions();
+//		initializeMissions();
 		
 		initializeHTML5video();
 		
@@ -160,6 +183,7 @@ public class StreamingWeb implements EntryPoint {
 
 	private void initializeEventBus() {
 		eventBus.addHandler(PlaySelectedEvent.TYPE, new PlaySelectedEventHandler(){
+
 			@Override
 			public void onPlaySelected(final PlaySelectedEvent event) {
 				selectedCustomNode = event.getNode();
@@ -186,7 +210,9 @@ public class StreamingWeb implements EntryPoint {
 					@Override
 					public void onSuccess(File result) {
 						selectedFile = result;
-						initializeFileButtons();
+						disableMissionMenu();
+						// XXX initializeFileButtons
+						// initializeFileButtons();
 						initializeFileAditionalInfo();
 						showFileDisclosure(event);
 					}
@@ -304,6 +330,7 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
+						disableBothMenus();
 						treeService(null);
 						DecoratedPopupPanel popup = new DecoratedPopupPanel();
 						popup.add(new Label("Misión creada satisfactoriamente"));
@@ -378,8 +405,10 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
+						disableBothMenus();
+						// XXX Clear buttonPanel
+						// buttonPanel.clear();
 						disclosureInfo.clear();
-						buttonPanel.clear();
 						treeService(null);
 						DecoratedPopupPanel popup = new DecoratedPopupPanel();
 						popup.add(new Label("Misión eliminada correctamente"));
@@ -402,7 +431,9 @@ public class StreamingWeb implements EntryPoint {
 			@Override
 			public void onSelectedMission(SelectedMissionEvent event) {
 				if (event.getName().endsWith("video") || event.getName().endsWith("audio") || event.getName().endsWith("imagen") || event.getName().endsWith("cartografia") || event.getName().endsWith("documento"))
-					buttonPanel.clear();
+					disableBothMenus();
+					// XXX Clear buttonPanel
+					// buttonPanel.clear();
 				else {
 					selectedCustomNode = event.getNode();
 					showMissionButtons(event.getName());
@@ -432,7 +463,9 @@ public class StreamingWeb implements EntryPoint {
 					@Override
 					public void onSuccess(Mission result) {
 						selectedMission = result;
-						initializeMissionButtons();
+						disableFileMenu();
+						// XXX initializeMissionButtons
+						// initializeMissionButtons();
 						initializeMissionAditionalInfo();
 					}
 
@@ -483,6 +516,7 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
+						disableBothMenus();
 						treeService(null);
 						DecoratedPopupPanel popup = new DecoratedPopupPanel();
 						popup.add(new Label("Archivo añadido satisfactoriamente"));
@@ -557,7 +591,9 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
-						buttonPanel.clear();
+						disableBothMenus();
+						// XXX Clear buttonPanel
+						// buttonPanel.clear();
 						disclosureInfo.clear();
 						treeService(null);
 						DecoratedPopupPanel popup = new DecoratedPopupPanel();
@@ -581,59 +617,69 @@ public class StreamingWeb implements EntryPoint {
 		images = (Images) GWT.create(Images.class);
 		
 		rootPanel = RootPanel.get();
-		rootPanel.setSize("900px", "900px");
+		rootPanel.setStyleName("rootPanel");
+		rootPanel.setSize("100%", "100%");
 		
 		dockPanel = new DockPanel();
+		dockPanel.setStyleName("dockPanel");
 		rootPanel.add(dockPanel, 0, 0);
-		dockPanel.setSize("900px", "900px");
+		dockPanel.setSize("100%", "100%");
+		
+		headerImageNorth = new Image("");
+		headerImageNorth.setStyleName("separadorHeaderNorth");
+		dockPanel.add(headerImageNorth, DockPanel.NORTH);
+		headerImageNorth.setSize("100%", "5px");
 		
 		northPanel = new HorizontalPanel();
+		northPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		northPanel.setStyleName("mainHeader");
 		dockPanel.add(northPanel, DockPanel.NORTH);
-		northPanel.setSize("900px", "100px");
+		northPanel.setSize("100%", "70px");
+		
+		versionLabel = new Label("Versión 0.1-SNAPSHOT");
+		versionLabel.setStyleName("separadorHeaderSouth");
+		dockPanel.add(versionLabel, DockPanel.NORTH);
 		
 		horizontalPanel = new HorizontalPanel();
+		horizontalPanel.setStyleName("horizontalNorthPanel");
 		dockPanel.add(horizontalPanel, DockPanel.NORTH);
-		horizontalPanel.setSize("900px", "50px");
-		
-		titlePanel = new HorizontalPanel();
-		titlePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-		titlePanel.setSpacing(10);
-		horizontalPanel.add(titlePanel);
-		horizontalPanel.setCellVerticalAlignment(titlePanel, HasVerticalAlignment.ALIGN_MIDDLE);
-		
-		missionLabel = new Label("Misiones");
-		titlePanel.add(missionLabel);
-		horizontalPanel.setCellVerticalAlignment(missionLabel, HasVerticalAlignment.ALIGN_MIDDLE);
 		
 		buttonPanel = new VerticalPanel();
-		buttonPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		buttonPanel.setSpacing(5);
+		buttonPanel.setStyleName("horizontalNorthPanel");
 		horizontalPanel.add(buttonPanel);
 		horizontalPanel.setCellVerticalAlignment(buttonPanel, HasVerticalAlignment.ALIGN_MIDDLE);
+		
+		menuBar = new MenuBar(false);
+		menuBar.setAnimationEnabled(true);
+		buttonPanel.add(menuBar);
 		
 		missionButtonPanel = new HorizontalPanel();
 		fileButtonPanel = new HorizontalPanel();
 		
 		dockCentrePanel = new HorizontalPanel();
 		dockPanel.add(dockCentrePanel, DockPanel.CENTER);
-		dockCentrePanel.setSize("", "800px");
+		dockCentrePanel.setSize("100%", "100%");
 		dockPanel.setCellHorizontalAlignment(dockCentrePanel, HasHorizontalAlignment.ALIGN_CENTER);
 		
 		splitLayoutPanel = new SplitLayoutPanel();
 		dockCentrePanel.add(splitLayoutPanel);
-		splitLayoutPanel.setSize("900px", "800px");
+		splitLayoutPanel.setSize("100%", "800px");
 		
 		splitVerticalPanel = new VerticalPanel();
 		splitVerticalPanel.setSpacing(10);
 		splitLayoutPanel.addWest(splitVerticalPanel, 250.0);
 		
-		crearButton = new Button("Crear");
+		// XXX Crear Button
+/*		crearButton = new Button("Crear");
 		splitVerticalPanel.add(crearButton);
-		splitVerticalPanel.setCellVerticalAlignment(crearButton, HasVerticalAlignment.ALIGN_MIDDLE);
+		splitVerticalPanel.setCellVerticalAlignment(crearButton, HasVerticalAlignment.ALIGN_MIDDLE);*/
 		
 		scrollPanel = new ScrollPanel();
 		splitVerticalPanel.add(scrollPanel);
 		
 		splitCentrePanel = new VerticalPanel();
+		splitCentrePanel.setSpacing(5);
 		splitLayoutPanel.add(splitCentrePanel);
 		splitCentrePanel.setSize("", "");
 		
@@ -676,11 +722,11 @@ public class StreamingWeb implements EntryPoint {
 		southPanel = new HorizontalPanel();
 		southPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		dockPanel.add(southPanel, DockPanel.SOUTH);
-		southPanel.setWidth("900px");
+		southPanel.setWidth("100%");
 		
 		footerLabel = new Label("New label");
 		southPanel.add(footerLabel);
-		footerLabel.setWidth("900px");
+		footerLabel.setWidth("100%");
 		southPanel.setCellHorizontalAlignment(footerLabel, HasHorizontalAlignment.ALIGN_CENTER);
 		southPanel.setVisible(false);
 	}
@@ -688,16 +734,121 @@ public class StreamingWeb implements EntryPoint {
 	private void initializeHeader() {
 		logo = new Image(images.esferalia());
 		northPanel.add(logo);
-		logo.setSize("100px", "100px");
+		logo.setSize("150px", "63px");
 		
 		titleLabel = new Label("ES3 - Electronic Signal Surveillance System");
-		titleLabel.setStyleName("h1");
-		titleLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		titleLabel.setStyleName("titleLabel");
 		northPanel.add(titleLabel);
-		titleLabel.setWidth("668px");
-		northPanel.setCellHorizontalAlignment(titleLabel, HasHorizontalAlignment.ALIGN_CENTER);
+		northPanel.setCellHorizontalAlignment(titleLabel, HasHorizontalAlignment.ALIGN_RIGHT);
 	}
 	
+	private void initializeMenuBar(){
+		missionSubMenu = new MenuBar(true);
+		missionItem = new MenuItem("Misión", false, missionSubMenu);
+		missionItem.setHTML("Misión");
+		newMissionItem = new MenuItem("Nueva", false, new Command(){
+			@Override
+			public void execute() {
+				CreateMissionWidget createMissionWidget = new CreateMissionWidget(eventBus);
+				createMissionWidget.setGlassEnabled(true);
+				createMissionWidget.center();
+				createMissionWidget.show();
+			}
+		});
+		newMissionItem.setHTML("Nueva");
+		missionSubMenu.addItem(newMissionItem);
+		updateMissionItem = new MenuItem("Modificar", false, new Command(){
+			@Override
+			public void execute() {
+				if(isNothingSelected)
+					;// DO NOTHING
+				else if (isMissionSelected){
+					UpdateMissionWidget updateMissionWidget = new UpdateMissionWidget(eventBus, selectedMission);
+					updateMissionWidget.setGlassEnabled(true);
+					updateMissionWidget.center();
+					updateMissionWidget.show();
+				} else
+					;// DO NOTHING
+			}
+		});
+		updateMissionItem.setHTML("Modificar");
+		missionSubMenu.addItem(updateMissionItem);
+		deleteMissionItem = new MenuItem("Eliminar", false, new Command(){
+			@Override
+			public void execute() {
+				if(isNothingSelected)
+					;// DO NOTHING
+				else if (isMissionSelected){
+					DeleteMissionWidget deleteMissionWidget = new DeleteMissionWidget(eventBus, selectedMission.getId());
+					deleteMissionWidget.setGlassEnabled(true);
+					deleteMissionWidget.center();
+					deleteMissionWidget.show();
+				} else
+					;// DO NOTHING
+			}
+		});
+		deleteMissionItem.setHTML("Eliminar");
+		missionSubMenu.addItem(deleteMissionItem);
+		separator = new MenuItemSeparator();
+		missionSubMenu.addSeparator(separator);
+		uploadFileItem = new MenuItem("Subir archivo", false, new Command(){
+			@Override
+			public void execute() {
+				if(isNothingSelected)
+					;// DO NOTHING
+				else if (isMissionSelected){
+					CreateFileWidget addFileToMissionWidget = new CreateFileWidget(selectedMission.getId(), eventBus);
+					addFileToMissionWidget.setGlassEnabled(true);
+					addFileToMissionWidget.center();
+					addFileToMissionWidget.show();
+				} else
+					;// DO NOTHING
+			}
+		});
+		uploadFileItem.setHTML("Subir archivo");
+		missionSubMenu.addItem(uploadFileItem);
+		menuBar.addItem(missionItem);
+		
+		fileSubMenu = new MenuBar(true);
+		fileItem = new MenuItem("Archivo", false, fileSubMenu);
+		updateFileItem = new MenuItem("Modificar", false, new Command(){
+			@Override
+			public void execute() {
+				if(isNothingSelected)
+					;// DO NOTHING
+				else if (!isMissionSelected){
+					UpdateFileWidget updateFileWidget = new UpdateFileWidget(eventBus, selectedFile);
+					updateFileWidget.setGlassEnabled(true);
+					updateFileWidget.center();
+					updateFileWidget.show();
+				} else
+					;// DO NOTHING
+			}
+		});
+		updateFileItem.setHTML("Modificar");
+		fileSubMenu.addItem(updateFileItem);
+		deleteFileItem = new MenuItem("Eliminar", false, new Command(){
+			@Override
+			public void execute() {
+				if(isNothingSelected)
+					;// DO NOTHING
+				else if (!isMissionSelected){
+					DeleteFileWidget deleteFileWidget = new DeleteFileWidget(eventBus, selectedFile.getId());
+					deleteFileWidget.setGlassEnabled(true);
+					deleteFileWidget.center();
+					deleteFileWidget.show();
+				} else
+					;// DO NOTHING
+			}
+		});
+		deleteFileItem.setHTML("Eliminar");
+		fileSubMenu.addItem(deleteFileItem);
+		fileItem.setHTML("Archivo");
+		menuBar.addItem(fileItem);
+		
+		disableBothMenus();
+	}
+
 	private void initializeMissionButtons() {
 		buttonPanel.clear();
 		missionButtonPanel = new HorizontalPanel();
@@ -738,7 +889,8 @@ public class StreamingWeb implements EntryPoint {
 		});
 		missionButtonPanel.add(deleteMissionButton);
 	}
-	
+
+
 	private void initializeFileButtons() {
 		buttonPanel.clear();
 		fileButtonPanel = new HorizontalPanel();
@@ -769,7 +921,8 @@ public class StreamingWeb implements EntryPoint {
 		});
 		fileButtonPanel.add(deleteFileButton);
 	}
-	
+
+
 	private void initializeMissions() {
 		crearButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -781,6 +934,7 @@ public class StreamingWeb implements EntryPoint {
 		});
 	}
 
+	
 	private void initializeMissionAditionalInfo() {
 		infoPanel.clear();
 		missionInfoPanel = new VerticalPanel();
@@ -1076,6 +1230,41 @@ public class StreamingWeb implements EntryPoint {
 
 		// Make the call to the stock price service.
 		xmlService.getCoordenadas(Integer.toString(selected), name, callback);
+	}
+	
+	private void disableFileMenu() {
+		isMissionSelected = true;
+		isNothingSelected = false;
+		
+		updateMissionItem.setStyleName("gwt-MenuItem");
+		deleteMissionItem.setStyleName("gwt-MenuItem");
+		uploadFileItem.setStyleName("gwt-MenuItem");
+		
+		updateFileItem.setStyleName("menuItemError");
+		deleteFileItem.setStyleName("menuItemError");
+	}
+	
+	private void disableMissionMenu() {
+		isMissionSelected = false;
+		isNothingSelected = false;
+		
+		updateMissionItem.setStyleName("menuItemError");
+		deleteMissionItem.setStyleName("menuItemError");
+		uploadFileItem.setStyleName("menuItemError");
+		
+		updateFileItem.setStyleName("gwt-MenuItem");
+		deleteFileItem.setStyleName("gwt-MenuItem");
+	}
+	
+	private void disableBothMenus() {
+		isNothingSelected = true;
+		
+		updateMissionItem.setStyleName("menuItemError");
+		deleteMissionItem.setStyleName("menuItemError");
+		uploadFileItem.setStyleName("menuItemError");
+		
+		updateFileItem.setStyleName("menuItemError");
+		deleteFileItem.setStyleName("menuItemError");
 	}
 	
 }

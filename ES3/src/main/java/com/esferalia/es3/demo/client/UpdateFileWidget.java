@@ -30,6 +30,15 @@ public class UpdateFileWidget extends DialogBox {
 	private Button okButton;
 	private Button cancelButton;
 	private TextBox nameTextBox;
+	private HorizontalPanel horizontalPanel;
+	private VerticalPanel verticalPanel;
+	private VerticalPanel verticalPanel_1;
+	private HorizontalPanel buttonPanel;
+	private Label lblNewLabel;
+	private VerticalPanel vPanel;
+	private Label nameLabel;
+	private Label descriptionLabel;
+	private Label errorLabel;
 
 	public UpdateFileWidget(final HandlerManager eventbus, final File oldFile) {
 		mainPanel = new VerticalPanel();
@@ -39,15 +48,15 @@ public class UpdateFileWidget extends DialogBox {
 		titleLabel = new Label("Añadir archivo a la misión");
 		mainPanel.add(titleLabel);
 
-		HorizontalPanel horizontalPanel = new HorizontalPanel();
+		horizontalPanel = new HorizontalPanel();
 		horizontalPanel.setSpacing(5);
 		mainPanel.add(horizontalPanel);
 
-		VerticalPanel verticalPanel = new VerticalPanel();
+		verticalPanel = new VerticalPanel();
 		verticalPanel.setSpacing(5);
 		horizontalPanel.add(verticalPanel);
 		
-		Label nameLabel = new Label("Nombre");
+		nameLabel = new Label("Nombre");
 		verticalPanel.add(nameLabel);
 		
 		nameTextBox = new TextBox();
@@ -55,19 +64,19 @@ public class UpdateFileWidget extends DialogBox {
 		nameTextBox.setText(oldFile.getName().substring(0, punto));
 		verticalPanel.add(nameTextBox);
 		
-		Label descriptionLabel = new Label("Descripción");
+		descriptionLabel = new Label("Descripción");
 		verticalPanel.add(descriptionLabel);
 
 		descriptionTextArea = new TextArea();
 		descriptionTextArea.setText(oldFile.getDescription());
 		verticalPanel.add(descriptionTextArea);
 
-		VerticalPanel verticalPanel_1 = new VerticalPanel();
+		verticalPanel_1 = new VerticalPanel();
 		verticalPanel_1.setSpacing(5);
 		horizontalPanel.add(verticalPanel_1);
 
-		Label lblNewLabel_3 = new Label("Fecha creación");
-		verticalPanel_1.add(lblNewLabel_3);
+		lblNewLabel = new Label("Fecha creación");
+		verticalPanel_1.add(lblNewLabel);
 
 		// Create a basic date picker
 		startDatePicker = new DateBox();
@@ -75,11 +84,16 @@ public class UpdateFileWidget extends DialogBox {
 		startDatePicker.setFormat(new DefaultFormat(com.google.gwt.i18n.client.DateTimeFormat.getFormat("dd/MM/yyyy")));
 
 		// Combine the widgets into a panel and return them
-		VerticalPanel vPanel_1 = new VerticalPanel();
-		vPanel_1.add(startDatePicker);
-		verticalPanel_1.add(vPanel_1);
+		vPanel = new VerticalPanel();
+		vPanel.add(startDatePicker);
+		verticalPanel_1.add(vPanel);
 		
-		HorizontalPanel buttonPanel = new HorizontalPanel();
+		errorLabel = new Label();
+		errorLabel.setStyleName("errorLabel");
+		errorLabel.setVisible(false);
+		mainPanel.add(errorLabel);
+		
+		buttonPanel = new HorizontalPanel();
 		buttonPanel.setSpacing(10);
 		buttonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		mainPanel.add(buttonPanel);
@@ -87,17 +101,24 @@ public class UpdateFileWidget extends DialogBox {
 		okButton = new Button("Aceptar");
 		okButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent clickEvent) {
-				FileEvent updateFileEvent = new FileEvent();
-				File updatedFile = new File();
-				updatedFile.setId(oldFile.getId());
-				updatedFile.setMission(oldFile.getMission());
-				updatedFile.setName(nameTextBox.getText() + oldFile.getName().substring(punto));
-				updatedFile.setDescription(descriptionTextArea.getText());
-				updatedFile.setDate_time(startDatePicker.getValue());
-				updateFileEvent.setAccion(Action.UPDATE);
-				updateFileEvent.setFile(updatedFile);
-				eventbus.fireEvent(updateFileEvent);
-				hide();
+				if (nameTextBox.getText().trim().isEmpty()
+						|| startDatePicker.getValue() == null) {
+					errorLabel.setText("Recuerde que los campos 'Nombre' y 'Fecha creación'");
+					errorLabel.setVisible(true);
+				} else {
+					errorLabel.setVisible(false);
+					FileEvent updateFileEvent = new FileEvent();
+					File updatedFile = new File();
+					updatedFile.setId(oldFile.getId());
+					updatedFile.setMission(oldFile.getMission());
+					updatedFile.setName(nameTextBox.getText() + oldFile.getName().substring(punto));
+					updatedFile.setDescription(descriptionTextArea.getText());
+					updatedFile.setDate_time(startDatePicker.getValue());
+					updateFileEvent.setAccion(Action.UPDATE);
+					updateFileEvent.setFile(updatedFile);
+					eventbus.fireEvent(updateFileEvent);
+					hide();
+				}
 			}
 		});
 		buttonPanel.add(okButton);

@@ -31,6 +31,7 @@ public class UpdateMissionWidget extends DialogBox{
 	private DateBox endDatePicker;
 	private Button okButton;
 	private Button cancelButton;
+	private Label errorLabel;
 	
 	public UpdateMissionWidget(final HandlerManager eventbus, final Mission oldMission){
 		mainPanel = new VerticalPanel();
@@ -105,6 +106,11 @@ public class UpdateMissionWidget extends DialogBox{
 	    vPanel_2.add(endDatePicker);
 		verticalPanel_2.add(vPanel_2);
 		
+		errorLabel = new Label();
+		errorLabel.setStyleName("errorLabel");
+		errorLabel.setVisible(false);
+		mainPanel.add(errorLabel);
+		
 		HorizontalPanel buttonPanel = new HorizontalPanel();
 		buttonPanel.setSpacing(10);
 		buttonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
@@ -113,18 +119,30 @@ public class UpdateMissionWidget extends DialogBox{
 		okButton = new Button("Aceptar");
 		okButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				MissionEvent updateMissionEvent = new MissionEvent();
-				Mission updatedMision = new Mission();
-				updatedMision.setId(oldMission.getId());
-				updatedMision.setName(nombreTextBox.getText());
-				updatedMision.setAlias(aliasTextBox.getText());
-				updatedMision.setDescription(descriptionTextArea.getText());
-				updatedMision.setStart_date(startDatePicker.getValue());
-				updatedMision.setEnd_date(endDatePicker.getValue());
-				updateMissionEvent.setAccion(Action.UPDATE);
-				updateMissionEvent.setMision(updatedMision);
-				eventbus.fireEvent(updateMissionEvent);
-				hide();
+				if (nombreTextBox.getText().trim().isEmpty()
+						|| startDatePicker.getValue() == null
+						|| endDatePicker.getValue() == null) {
+					errorLabel.setText("Recuerde que los campos 'Nombre', 'Fecha inicio' y 'Fecha fin' son obligatorios");
+					errorLabel.setVisible(true);
+				} else if (startDatePicker.getValue().compareTo(
+						endDatePicker.getValue()) == 1) {
+					errorLabel.setText("Recuerde que 'Fecha fin' no debe ser anterior a 'Fecha inicio'");
+					errorLabel.setVisible(true);
+				} else {
+					errorLabel.setVisible(false);
+					MissionEvent updateMissionEvent = new MissionEvent();
+					Mission updatedMision = new Mission();
+					updatedMision.setId(oldMission.getId());
+					updatedMision.setName(nombreTextBox.getText());
+					updatedMision.setAlias(aliasTextBox.getText());
+					updatedMision.setDescription(descriptionTextArea.getText());
+					updatedMision.setStart_date(startDatePicker.getValue());
+					updatedMision.setEnd_date(endDatePicker.getValue());
+					updateMissionEvent.setAccion(Action.UPDATE);
+					updateMissionEvent.setMision(updatedMision);
+					eventbus.fireEvent(updateMissionEvent);
+					hide();
+				}
 			}
 		});
 		buttonPanel.add(okButton);

@@ -22,13 +22,6 @@ public class DatabaseServiceImpl extends RemoteServiceServlet implements
 	private DatabaseManager dbmanager = new DatabaseManager();
 	private DirectoryManager dirmanager = new DirectoryManager();
 	
-	// FIXME Logging vars Path
-	static private FileHandler fileTxt;
-	private final static Logger LOGGER = Logger.getLogger(DatabaseServiceImpl.class.getName());
-	private final String LOG_PATH = "/srv/www/lighttpd/es3/Logging.txt";
-			// "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\Logging.txt";
-			// "/srv/www/lighttpd/es3/Logging.txt";
-	
 	@Override
 	public void loadDatabase() throws DatabaseException{
 	}
@@ -50,38 +43,18 @@ public class DatabaseServiceImpl extends RemoteServiceServlet implements
 	@Override
 	public void insertMission(Mission mision) throws DatabaseException, DirectoryException{
 		int id;
-		
-		Logger logger = Logger.getLogger("");
-		logger.setLevel(Level.ALL);
+
 		try {
-			java.io.File logFile = new java.io.File(LOG_PATH);
-			logFile.createNewFile();
-			fileTxt = new FileHandler(LOG_PATH);
-			logger.addHandler(fileTxt);
-		} catch (IOException e) {
-			LOGGER.severe("DIRECTORY MANAGER ERROR: " + e.getMessage());
-			e.printStackTrace();
-		}
-		
-		
-		try {
-			LOGGER.severe("BEFORE getConnection");
 			dbmanager.getConnection();
-			LOGGER.severe("BEFORE insertMission");
 			dbmanager.insertMission(mision.getName(), mision.getAlias(), mision.getDescription(), mision.getStart_date() , mision.getEnd_date());
-			LOGGER.severe("BEFORE lastInsertID");
 			id = dbmanager.lastInsertID("mission");
-			LOGGER.severe("BEFORE closeConnection");
 			dbmanager.closeConnection();
-			LOGGER.severe("ENDS");
 		} catch (SQLException e) {
-			LOGGER.severe("SQLEXCEPTION");
 			e.printStackTrace();
 			throw new DatabaseException(e.toString());
 		}
 				
 		try{
-			LOGGER.severe("BEFORE createMission");
 			dirmanager.createMission(id);
 		}catch(IOException e){
 			e.printStackTrace();

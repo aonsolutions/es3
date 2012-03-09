@@ -1,8 +1,12 @@
 package com.esferalia.es3.demo.server;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -20,7 +24,8 @@ import com.esferalia.es3.demo.client.dto.Coordenada;
 
 public class EjemploReadDomXml {
 	
-	private File fXmlFile;
+	// private File fXmlFile;
+	private InputStream fXmlFile;
 	private DocumentBuilderFactory dbFactory;
 	private DocumentBuilder dBuilder;
 	private Document doc;
@@ -29,7 +34,11 @@ public class EjemploReadDomXml {
 		try {
 			// FIXME For local XML Path
 			// fXmlFile = new File(name);
-			fXmlFile = new File(URI.create(name));
+
+			URL url = new URL(name);
+			URLConnection urlConnection = url.openConnection();
+			fXmlFile = new BufferedInputStream(urlConnection.getInputStream());
+
 			dbFactory = DocumentBuilderFactory.newInstance();
 			dBuilder = dbFactory.newDocumentBuilder();
 			doc = dBuilder.parse(fXmlFile);
