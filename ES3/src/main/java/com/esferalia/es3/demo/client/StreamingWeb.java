@@ -7,7 +7,11 @@ import java.util.Vector;
 
 import com.esferalia.es3.demo.client.dto.Coordenada;
 import com.esferalia.es3.demo.client.dto.File;
+import com.esferalia.es3.demo.client.dto.FileCell;
 import com.esferalia.es3.demo.client.dto.Mission;
+import com.esferalia.es3.demo.client.dto.MissionCell;
+import com.esferalia.es3.demo.client.event.CategoryEvent;
+import com.esferalia.es3.demo.client.event.CategoryEventHandler;
 import com.esferalia.es3.demo.client.event.FileEvent;
 import com.esferalia.es3.demo.client.event.FileEventHandler;
 import com.esferalia.es3.demo.client.event.MissionEvent;
@@ -25,6 +29,7 @@ import com.esferalia.es3.demo.client.service.XMLService;
 import com.esferalia.es3.demo.client.service.XMLServiceAsync;
 import com.esferalia.es3.demo.client.tree.CustomNode;
 import com.esferalia.es3.demo.client.tree.FoldersAndFilesTree;
+import com.esferalia.es3.demo.client.tree.MissionTree;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -52,6 +57,7 @@ import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -99,6 +105,7 @@ public class StreamingWeb implements EntryPoint {
 	private VerticalPanel splitVerticalPanel;
 	private ScrollPanel scrollPanel;
 	private Button crearButton;
+	private MissionTree missionTree;
 	private FoldersAndFilesTree foldersFilesTree;
 	private VerticalPanel splitCentrePanel;
 	private HorizontalPanel southPanel;
@@ -145,7 +152,7 @@ public class StreamingWeb implements EntryPoint {
 
 	private Mission selectedMission;
 	private File selectedFile;
-	private CustomNode selectedCustomNode;
+	private TreeItem selectedCustomNode;
 	private boolean isMissionSelected;
 	private boolean isNothingSelected;
 	
@@ -154,8 +161,6 @@ public class StreamingWeb implements EntryPoint {
 	private XMLServiceAsync xmlService = GWT.create(XMLService.class);
 
 	final HandlerManager eventBus = new HandlerManager(null);
-
-
 
 	@Override
 	public void onModuleLoad() {
@@ -211,8 +216,6 @@ public class StreamingWeb implements EntryPoint {
 					public void onSuccess(File result) {
 						selectedFile = result;
 						disableMissionMenu();
-						// XXX initializeFileButtons
-						// initializeFileButtons();
 						initializeFileAditionalInfo();
 						showFileDisclosure(event);
 					}
@@ -253,9 +256,6 @@ public class StreamingWeb implements EntryPoint {
 							disclosureFlow.setOpen(false);
 							disclosureImage.setOpen(true);
 							disclosureMap.setOpen(false);
-							System.out.println("Path de la imagen seleccionada: " + event.getPath());
-							System.out.println("Resultado de getNameFile: " + event.getNameFile());
-							System.out.println("Nombre del nodo seleccionado: " + event.getNode().getUserObject().getName());
 							pic.setUrl(event.getPath());
 							pic.addClickHandler(new ClickHandler() {
 								@Override
@@ -284,8 +284,7 @@ public class StreamingWeb implements EntryPoint {
 
 				};
 				
-				String[] split = event.getNameFile().split("\\.");
-				String id = split[0];
+				int id = ((FileCell) event.getNode().getUserObject()).getId();
 				// Make the call to the database service.
 				databaseService.selectFile(Integer.valueOf(id), callback);
 			}
@@ -368,7 +367,7 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
-						treeService(selectedCustomNode);
+						treeService(null);
 						DecoratedPopupPanel popup = new DecoratedPopupPanel();
 						popup.add(new Label("Misión actualizada correctamente"));
 						popup.setTitle("Misión actualizada correctamente");
@@ -406,8 +405,6 @@ public class StreamingWeb implements EntryPoint {
 					@Override
 					public void onSuccess(Void result) {
 						disableBothMenus();
-						// XXX Clear buttonPanel
-						// buttonPanel.clear();
 						disclosureInfo.clear();
 						treeService(null);
 						DecoratedPopupPanel popup = new DecoratedPopupPanel();
@@ -430,17 +427,11 @@ public class StreamingWeb implements EntryPoint {
 
 			@Override
 			public void onSelectedMission(SelectedMissionEvent event) {
-				if (event.getName().endsWith("video") || event.getName().endsWith("audio") || event.getName().endsWith("imagen") || event.getName().endsWith("cartografia") || event.getName().endsWith("documento"))
-					disableBothMenus();
-					// XXX Clear buttonPanel
-					// buttonPanel.clear();
-				else {
-					selectedCustomNode = event.getNode();
-					showMissionButtons(event.getName());
-				}
+				selectedCustomNode = event.getNode();
+				showMissionButtons(((MissionCell)event.getNode().getUserObject()).getId());
 			}
 			
-			private void showMissionButtons(String name) {
+			private void showMissionButtons(int name) {
 				// Initialize the service proxy.
 				if (databaseService == null) {
 					databaseService = GWT.create(DatabaseService.class);
@@ -464,8 +455,6 @@ public class StreamingWeb implements EntryPoint {
 					public void onSuccess(Mission result) {
 						selectedMission = result;
 						disableFileMenu();
-						// XXX initializeMissionButtons
-						// initializeMissionButtons();
 						initializeMissionAditionalInfo();
 					}
 
@@ -554,7 +543,7 @@ public class StreamingWeb implements EntryPoint {
 
 					@Override
 					public void onSuccess(Void result) {
-						treeService(selectedCustomNode);
+						treeService(null);
 						DecoratedPopupPanel popup = new DecoratedPopupPanel();
 						popup.add(new Label("Archivo actualizado correctamente"));
 						popup.setTitle("Archivo actualizado correctamente");
@@ -592,8 +581,6 @@ public class StreamingWeb implements EntryPoint {
 					@Override
 					public void onSuccess(Void result) {
 						disableBothMenus();
-						// XXX Clear buttonPanel
-						// buttonPanel.clear();
 						disclosureInfo.clear();
 						treeService(null);
 						DecoratedPopupPanel popup = new DecoratedPopupPanel();
@@ -609,6 +596,15 @@ public class StreamingWeb implements EntryPoint {
 				// Make the call to the database service.
 				databaseService.deleteFile(file, callback);
 			}
+		});
+		
+		eventBus.addHandler(CategoryEvent.TYPE, new CategoryEventHandler(){
+
+			@Override
+			public void onCategory(CategoryEvent event) {
+				disableBothMenus();
+			}
+			
 		});
 
 	}
@@ -669,12 +665,7 @@ public class StreamingWeb implements EntryPoint {
 		splitVerticalPanel = new VerticalPanel();
 		splitVerticalPanel.setSpacing(10);
 		splitLayoutPanel.addWest(splitVerticalPanel, 250.0);
-		
-		// XXX Crear Button
-/*		crearButton = new Button("Crear");
-		splitVerticalPanel.add(crearButton);
-		splitVerticalPanel.setCellVerticalAlignment(crearButton, HasVerticalAlignment.ALIGN_MIDDLE);*/
-		
+
 		scrollPanel = new ScrollPanel();
 		splitVerticalPanel.add(scrollPanel);
 		
@@ -1026,18 +1017,14 @@ public class StreamingWeb implements EntryPoint {
 	}
 	
 	private void treeService(final CustomNode selectedUINode) {
+		
 		// Initialize the service proxy.
-		if (treeService == null) {
-			treeService = GWT.create(TreeService.class);
+		if (databaseService == null) {
+			databaseService = GWT.create(DatabaseService.class);
 		}
 
 		// Set up the callback object.
-		AsyncCallback<CustomNode> callback = new AsyncCallback<CustomNode>() {
-
-			@Override
-			public void onSuccess(CustomNode result) {
-				initializeTree(result, selectedUINode);
-			}
+		AsyncCallback<Vector<MissionCell>> callback = new AsyncCallback<Vector<MissionCell>>() {
 
 			@Override
 			public void onFailure(Throwable caught) {
@@ -1049,19 +1036,21 @@ public class StreamingWeb implements EntryPoint {
 				popup.center();
 				popup.show();
 			}
-		};
 
-		// Make the call to the greeting service.
-		// FIXME directoryPath
-		treeService.getTree(BASE_PATH, callback);
-//		greetingSvc.greetServer("/srv/www/lighttpd/public", callback);
+			@Override
+			public void onSuccess(Vector<MissionCell> result) {
+				initializeTree(result, selectedUINode);
+			}
+			
+		};
+		databaseService.fillTree(callback);
 	}
 	
-	private void initializeTree(CustomNode folderTree, CustomNode selectedUINode) {
+	private void initializeTree(Vector<MissionCell> missions, CustomNode selectedUINode) {
 		scrollPanel.clear();
-		foldersFilesTree = new FoldersAndFilesTree(eventBus, folderTree, selectedUINode);
-		scrollPanel.add(foldersFilesTree);
-		scrollPanel.onResize();
+		missionTree = new MissionTree(missions, eventBus);
+		scrollPanel.add(missionTree);
+//		scrollPanel.onResize();
 	}
 	
 	private void stopPlayers(){
@@ -1236,35 +1225,35 @@ public class StreamingWeb implements EntryPoint {
 		isMissionSelected = true;
 		isNothingSelected = false;
 		
-		updateMissionItem.setStyleName("gwt-MenuItem");
-		deleteMissionItem.setStyleName("gwt-MenuItem");
-		uploadFileItem.setStyleName("gwt-MenuItem");
+		updateMissionItem.setEnabled(true);
+		deleteMissionItem.setEnabled(true);
+		uploadFileItem.setEnabled(true);
 		
-		updateFileItem.setStyleName("menuItemError");
-		deleteFileItem.setStyleName("menuItemError");
+		updateFileItem.setEnabled(false);
+		deleteFileItem.setEnabled(false);
 	}
 	
 	private void disableMissionMenu() {
 		isMissionSelected = false;
 		isNothingSelected = false;
 		
-		updateMissionItem.setStyleName("menuItemError");
-		deleteMissionItem.setStyleName("menuItemError");
-		uploadFileItem.setStyleName("menuItemError");
+		updateMissionItem.setEnabled(false);
+		deleteMissionItem.setEnabled(false);
+		uploadFileItem.setEnabled(false);
 		
-		updateFileItem.setStyleName("gwt-MenuItem");
-		deleteFileItem.setStyleName("gwt-MenuItem");
+		updateFileItem.setEnabled(true);
+		deleteFileItem.setEnabled(true);
 	}
 	
 	private void disableBothMenus() {
 		isNothingSelected = true;
 		
-		updateMissionItem.setStyleName("menuItemError");
-		deleteMissionItem.setStyleName("menuItemError");
-		uploadFileItem.setStyleName("menuItemError");
+		updateMissionItem.setEnabled(false);
+		deleteMissionItem.setEnabled(false);
+		uploadFileItem.setEnabled(false);
 		
-		updateFileItem.setStyleName("menuItemError");
-		deleteFileItem.setStyleName("menuItemError");
+		updateFileItem.setEnabled(false);
+		deleteFileItem.setEnabled(false);
 	}
 	
 }

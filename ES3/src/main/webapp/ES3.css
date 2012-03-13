@@ -40,9 +40,7 @@
 	font-size: 14px;
 	font-weight: bolder;
 	margin-right: 20px;
-}
-
-.mainHeader {
+	text-align: right;
 }
 
 /** Agregar un logo a un botón con texto
@@ -70,13 +68,7 @@
 	width: 100%;
 }
 
-.menuItemError {
-	padding: 2px 40px 2px 1px;
-	font-family: Arial Unicode MS, Arial, sans-serif;
-	color: #D8D8D8;
-}
-
-.gwt-MenuBar {
+/* .gwt-MenuBar {
   cursor: default;
 }
 
@@ -88,7 +80,7 @@
 .gwt-MenuBar .gwt-MenuItem-selected {
   background: #E3E8F3;
 }
-
+*/
 
 .gwt-MenuBar .gwt-MenuBar-horizontal {
   background: #e3e8f3 url(es3/menuBar.png) repeat-x 0px -2003px;

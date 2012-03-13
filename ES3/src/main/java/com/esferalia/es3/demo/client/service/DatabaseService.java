@@ -1,7 +1,10 @@
 package com.esferalia.es3.demo.client.service;
 
+import java.util.Vector;
+
 import com.esferalia.es3.demo.client.dto.File;
 import com.esferalia.es3.demo.client.dto.Mission;
+import com.esferalia.es3.demo.client.dto.MissionCell;
 import com.esferalia.es3.demo.client.exception.DatabaseException;
 import com.esferalia.es3.demo.client.exception.DirectoryException;
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -30,5 +33,7 @@ public interface DatabaseService extends RemoteService {
 	void deleteFile(File file) throws DatabaseException, DirectoryException;
 
 	File selectFile(Integer valueOf) throws DatabaseException;
+
+	Vector<MissionCell> fillTree() throws DatabaseException;
 
 }

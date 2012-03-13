@@ -1,7 +1,10 @@
 package com.esferalia.es3.demo.client.service;
 
+import java.util.Vector;
+
 import com.esferalia.es3.demo.client.dto.File;
 import com.esferalia.es3.demo.client.dto.Mission;
+import com.esferalia.es3.demo.client.dto.MissionCell;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -26,4 +29,6 @@ public interface DatabaseServiceAsync {
 	void deleteFile(File file, AsyncCallback<Void> callback);
 
 	void selectFile(Integer valueOf, AsyncCallback<File> callback);
+
+	void fillTree(AsyncCallback<Vector<MissionCell>> callback);
 }

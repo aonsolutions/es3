@@ -74,16 +74,16 @@ public class FoldersAndFilesTree extends Composite{
 						absolutePath = selectionModel.getSelectedObject().getUserObject().getAbsolutePath();
 						relativePath = getRelativePath(absolutePath);
 						String nameFile= selectionModel.getSelectedObject().getUserObject().getName();
-						selectedFileEvent.setNode(selectionModel.getSelectedObject());
-						selectedFileEvent.setPath(relativePath);
-						selectedFileEvent.setNameFile(nameFile);
+//						selectedFileEvent.setNode(selectionModel.getSelectedObject());
+//						selectedFileEvent.setPath(relativePath);
+//						selectedFileEvent.setNameFile(nameFile);
 						eventBus.fireEvent(selectedFileEvent);
 					}
 					else { // Si es una misión
 						SelectedMissionEvent selectedMissionEvent= new SelectedMissionEvent();
 						String missionName = selectionModel.getSelectedObject().getUserObject().getName();
-						selectedMissionEvent.setNode(selectionModel.getSelectedObject());
-						selectedMissionEvent.setName(missionName);
+//						selectedMissionEvent.setNode(selectionModel.getSelectedObject());
+//						selectedMissionEvent.setName(missionName);
 						eventBus.fireEvent(selectedMissionEvent);
 					}
 				}
@@ -137,18 +137,27 @@ public class FoldersAndFilesTree extends Composite{
 						if (value != null) {
 							String imageHTML;
 							String originalName = value.getUserObject().getName();
-							if (originalName.endsWith(".png") || originalName.endsWith(".jpg"))
-								imageHTML = AbstractImagePrototype.create(images.image()).getHTML();
-							else if (originalName.endsWith(".mp3") || originalName.endsWith(".ogg"))
-								imageHTML = AbstractImagePrototype.create(images.audio()).getHTML();
-							else if (originalName.endsWith(".mp4") || originalName.endsWith(".flv") || originalName.endsWith(".ogv") || originalName.endsWith(".webm"))
+							if (originalName.equals("video"))
 								imageHTML = AbstractImagePrototype.create(images.video()).getHTML();
-							else if (originalName.endsWith(".xml"))
-								imageHTML = AbstractImagePrototype.create(images.gps()).getHTML();
-							else if (originalName.endsWith(".pdf"))
+							else if (originalName.equals("documento"))
 								imageHTML = AbstractImagePrototype.create(images.doc()).getHTML();
-							else 
-								imageHTML = AbstractImagePrototype.create(images.mission()).getHTML();
+							else if (originalName.equals("cartografia"))
+								imageHTML = AbstractImagePrototype.create(images.gps()).getHTML();
+							else if (originalName.equals("imagen"))
+								imageHTML = AbstractImagePrototype.create(images.image()).getHTML();
+							else if (originalName.equals("audio"))
+								imageHTML = AbstractImagePrototype.create(images.audio()).getHTML();
+							else if (originalName.endsWith(".png") || originalName.endsWith(".jpg"))
+								imageHTML = "";
+							else if (originalName.endsWith(".mp3") || originalName.endsWith(".ogg"))
+								imageHTML = "";
+							else if (originalName.endsWith(".mp4") || originalName.endsWith(".flv") || originalName.endsWith(".ogv") || originalName.endsWith(".webm"))
+								imageHTML = "";
+							else if (originalName.endsWith(".xml"))
+								imageHTML = "";
+							else if (originalName.endsWith(".pdf"))
+								imageHTML = "";
+							else imageHTML = AbstractImagePrototype.create(images.mission()).getHTML();
 							sb.appendHtmlConstant(imageHTML).appendEscaped(" ");
 					        sb.appendEscaped(value.getUserObject().getName());
 							// sb.appendEscaped(value.getUserObject().getName());

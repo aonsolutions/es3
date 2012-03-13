@@ -131,10 +131,12 @@ public class CreateMissionWidget extends DialogBox{
 						|| endDatePicker.getValue() == null) {
 					errorLabel.setText("Recuerde que los campos 'Nombre', 'Fecha inicio' y 'Fecha fin' son obligatorios");
 					errorLabel.setVisible(true);
+					event.stopPropagation();
 				} else if (startDatePicker.getValue().compareTo(
 						endDatePicker.getValue()) == 1) {
 					errorLabel.setText("Recuerde que 'Fecha fin' no debe ser anterior a 'Fecha inicio'");
 					errorLabel.setVisible(true);
+					event.stopPropagation();
 				} else {
 					errorLabel.setVisible(false);
 					MissionEvent createMissionEvent = new MissionEvent();
