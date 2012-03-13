@@ -7,14 +7,16 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.Date;
+import java.util.Vector;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.esferalia.es3.demo.client.dto.File;
+import com.esferalia.es3.demo.client.dto.FileCell;
 import com.esferalia.es3.demo.client.dto.FileType;
 import com.esferalia.es3.demo.client.dto.Mission;
-import com.esferalia.es3.demo.server.DatabaseServiceImpl;
+import com.esferalia.es3.demo.client.dto.MissionCell;
 
 public class DatabaseManager extends DatabaseConnection {
 
@@ -286,5 +288,117 @@ public class DatabaseManager extends DatabaseConnection {
 		} catch (SQLException e) {
 			throw e;
 		}
+	}
+	
+	public Vector<MissionCell> getTree() throws SQLException {
+		Vector<MissionCell> misiones = new Vector<MissionCell>();
+		Statement stmt = null;
+		ResultSet rs1 = null;
+		try {
+			stmt = connection.createStatement();
+			String query =
+					"select mission.`id`, mission.`name`, file.`id`, file.`name`, file.`type` "
+					+ " from mission left join file on `mission`.id = `file`.`mission` "
+					+ " order by mission.id, `file`.`type` ;";
+			rs1 = stmt.executeQuery(query);
+			rs1.next();
+			while (!rs1.isAfterLast()) {
+				if (rs1.isFirst()) {
+					MissionCell mision = new MissionCell();
+					mision.setId(rs1.getInt(1));
+					mision.setName(rs1.getString(2));
+					if (rs1.getInt(3) != 0) {
+						FileCell archivo = new FileCell();
+						archivo.setId(rs1.getInt(3));
+						archivo.setMission(rs1.getInt(1));
+						archivo.setOriginalName(rs1.getString(4));
+						int punto = rs1.getString(4).lastIndexOf(".");
+						archivo.setShortName(rs1.getString(4).substring(0, punto));
+						if (rs1.getString(5).equals(FileType.audio.toString())) {
+							archivo.setType(FileType.audio);
+							mision.addAudio(archivo);
+						} else if (rs1.getString(5).equals(FileType.video.toString())) {
+							archivo.setType(FileType.video);
+							mision.addVideo(archivo);
+						} else if (rs1.getString(5).equals(FileType.imagen.toString())) {
+							archivo.setType(FileType.imagen);
+							mision.addImage(archivo);
+						} else if (rs1.getString(5).equals(FileType.cartografia.toString())) {
+							archivo.setType(FileType.cartografia);
+							mision.addGPS(archivo);
+						} else {
+							archivo.setType(FileType.documento);
+							mision.addDoc(archivo);
+						}
+					}
+					misiones.add(mision);
+				} else {
+					MissionCell lastInserted = misiones.get(misiones.size()-1);
+					if (lastInserted.getId() == rs1.getInt(1)) {
+						if (rs1.getInt(3) != 0) {
+							FileCell archivo = new FileCell();
+							archivo.setId(rs1.getInt(3));
+							archivo.setMission(rs1.getInt(1));
+							archivo.setOriginalName(rs1.getString(4));
+							int punto = rs1.getString(4).lastIndexOf(".");
+							archivo.setShortName(rs1.getString(4).substring(0, punto));
+							if (rs1.getString(5).equals(FileType.audio.toString())) {
+								archivo.setType(FileType.audio);
+								lastInserted.addAudio(archivo);
+							} else if (rs1.getString(5).equals(FileType.video.toString())) {
+								archivo.setType(FileType.video);
+								lastInserted.addVideo(archivo);
+							} else if (rs1.getString(5).equals(FileType.imagen.toString())) {
+								archivo.setType(FileType.imagen);
+								lastInserted.addImage(archivo);
+							} else if (rs1.getString(5).equals(FileType.cartografia.toString())) {
+								archivo.setType(FileType.cartografia);
+								lastInserted.addGPS(archivo);
+							} else {
+								archivo.setType(FileType.documento);
+								lastInserted.addDoc(archivo);
+							}
+						}						
+						misiones.set(misiones.size()-1, lastInserted);
+					}
+					else {
+						MissionCell mision = new MissionCell();
+						mision.setId(rs1.getInt(1));
+						mision.setName(rs1.getString(2));
+						if (rs1.getInt(3) != 0) {
+							FileCell archivo = new FileCell();
+							archivo.setId(rs1.getInt(3));
+							archivo.setMission(rs1.getInt(1));
+							archivo.setOriginalName(rs1.getString(4));
+							int punto = rs1.getString(4).lastIndexOf(".");
+							archivo.setShortName(rs1.getString(4).substring(0, punto));
+							if (rs1.getString(5).equals(FileType.audio.toString())) {
+								archivo.setType(FileType.audio);
+								mision.addAudio(archivo);
+							} else if (rs1.getString(5).equals(FileType.video.toString())) {
+								archivo.setType(FileType.video);
+								mision.addVideo(archivo);
+							} else if (rs1.getString(5).equals(FileType.imagen.toString())) {
+								archivo.setType(FileType.imagen);
+								mision.addImage(archivo);
+							} else if (rs1.getString(5).equals(FileType.cartografia.toString())) {
+								archivo.setType(FileType.cartografia);
+								mision.addGPS(archivo);
+							} else {
+								archivo.setType(FileType.documento);
+								mision.addDoc(archivo);
+							}
+						}
+						misiones.add(mision);
+					}
+				}
+				rs1.next();
+			}
+
+			rs1.close();
+		} catch (SQLException e) {
+			throw e;
+		}
+		return misiones;
 	}
 }

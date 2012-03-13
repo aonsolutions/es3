@@ -45,7 +45,7 @@ public class UpdateFileWidget extends DialogBox {
 		mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		mainPanel.setSpacing(10);
 
-		titleLabel = new Label("Añadir archivo a la misión");
+		titleLabel = new Label("Modificar el archivo");
 		mainPanel.add(titleLabel);
 
 		horizontalPanel = new HorizontalPanel();
@@ -105,6 +105,7 @@ public class UpdateFileWidget extends DialogBox {
 						|| startDatePicker.getValue() == null) {
 					errorLabel.setText("Recuerde que los campos 'Nombre' y 'Fecha creación'");
 					errorLabel.setVisible(true);
+					clickEvent.stopPropagation();
 				} else {
 					errorLabel.setVisible(false);
 					FileEvent updateFileEvent = new FileEvent();

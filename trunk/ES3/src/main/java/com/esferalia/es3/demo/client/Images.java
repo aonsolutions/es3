@@ -25,4 +25,5 @@ public interface Images extends ClientBundle  {
 	
 	@Source("resources/esferalia_logo.png")
     ImageResource esferalia();
+
   }

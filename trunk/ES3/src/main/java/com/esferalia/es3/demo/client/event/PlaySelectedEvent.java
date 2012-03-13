@@ -1,13 +1,14 @@
 package com.esferalia.es3.demo.client.event;
 
-import com.esferalia.es3.demo.client.tree.CustomNode;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.ui.TreeItem;
 
 public class PlaySelectedEvent extends GwtEvent<PlaySelectedEventHandler> {
 
-	private String nameFile;
+	private String originalName;
+	private String shortName;
 	private String path;
-	private CustomNode node;
+	private TreeItem node;
 	
 	public static final Type<PlaySelectedEventHandler> TYPE = new Type<PlaySelectedEventHandler>();
 	
@@ -19,6 +20,22 @@ public class PlaySelectedEvent extends GwtEvent<PlaySelectedEventHandler> {
 		return TYPE;
 	}
 
+	public String getOriginalName() {
+		return originalName;
+	}
+
+	public void setOriginalName(String originalName) {
+		this.originalName = originalName;
+	}
+
+	public String getShortName() {
+		return shortName;
+	}
+
+	public void setShortName(String shortName) {
+		this.shortName = shortName;
+	}
+
 	public String getPath() {
 		return path;
 	}
@@ -27,19 +44,11 @@ public class PlaySelectedEvent extends GwtEvent<PlaySelectedEventHandler> {
 		this.path = path;
 	}
 
-	public String getNameFile() {
-		return nameFile;
-	}
-
-	public void setNameFile(String nameFile) {
-		this.nameFile = nameFile;
-	}
-
-	public CustomNode getNode() {
+	public TreeItem getNode() {
 		return node;
 	}
 
-	public void setNode(CustomNode node) {
+	public void setNode(TreeItem node) {
 		this.node = node;
 	}
 

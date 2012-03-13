@@ -2,12 +2,14 @@ package com.esferalia.es3.demo.server;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Vector;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.esferalia.es3.demo.client.dto.File;
 import com.esferalia.es3.demo.client.dto.Mission;
+import com.esferalia.es3.demo.client.dto.MissionCell;
 import com.esferalia.es3.demo.client.exception.DatabaseException;
 import com.esferalia.es3.demo.client.exception.DirectoryException;
 import com.esferalia.es3.demo.client.service.DatabaseService;
@@ -160,5 +162,19 @@ public class DatabaseServiceImpl extends RemoteServiceServlet implements
 			throw new DatabaseException(e.toString());
 		}
 		return file;
+	}
+
+	@Override
+	public Vector<MissionCell> fillTree() throws DatabaseException {
+		Vector<MissionCell> missions = new Vector<MissionCell>();
+		try {
+			dbmanager.getConnection();
+			missions = dbmanager.getTree();
+			dbmanager.closeConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new DatabaseException(e.toString());
+		}
+		return missions;
 	}
 }
