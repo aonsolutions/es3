@@ -17,7 +17,7 @@ public interface Images extends ClientBundle  {
 	@Source("resources/audio.png")
     ImageResource audio();
 	
-	@Source("resources/gps.png")
+	@Source("resources/GPS.png")
     ImageResource gps();
 	
 	@Source("resources/doc.png")
