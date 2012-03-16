@@ -119,6 +119,13 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<dependency>
+                        <groupId>com.google.code.gwt-dnd</groupId>
+                       	<artifactId>gwt-dnd</artifactId>
+                        <version>3.2.1</version>
+                       	<scope>compile</scope>
+                </dependency>
+
                <dependency>
                        	<groupId>mysql</groupId>
                         <artifactId>mysql-connector-java</artifactId>

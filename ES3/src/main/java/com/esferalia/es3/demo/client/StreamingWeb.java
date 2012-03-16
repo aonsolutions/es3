@@ -21,7 +21,6 @@ import com.esferalia.es3.demo.client.event.PlaySelectedEventHandler;
 import com.esferalia.es3.demo.client.event.SelectedMissionEvent;
 import com.esferalia.es3.demo.client.event.SelectedMissionEventHandler;
 import com.esferalia.es3.demo.client.flowplayer.FlowPlayer;
-import com.esferalia.es3.demo.client.panel.Drag_nDrop;
 import com.esferalia.es3.demo.client.service.DatabaseService;
 import com.esferalia.es3.demo.client.service.DatabaseServiceAsync;
 import com.esferalia.es3.demo.client.service.TreeService;
