@@ -9,7 +9,6 @@ import com.esferalia.es3.demo.client.dto.Coordenada;
 import com.esferalia.es3.demo.client.event.CloseEvent;
 import com.esferalia.es3.demo.client.event.CloseEventHandler;
 import com.esferalia.es3.demo.client.flowplayer.FlowPlayer;
-import com.esferalia.es3.demo.client.panel.DemoDragHandler;
 
 import com.google.gwt.core.client.EntryPoint;
 
