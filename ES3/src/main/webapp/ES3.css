@@ -92,6 +92,76 @@
   cursor: col-resize;
 }
 
-.errorLabel {
-	color: red;
+.borderSettings {
+	border-color: black;
+	border-width: thick;
+	cursor: se-resize;
+}
+
+/* ------------ WindowExample ------------ */
+.demo-WindowPanel {
+	background-color: #FFFFFF; /* prevent transparency */
+}
+
+.demo-WindowPanel .demo-WindowPanel-header {
+	background-color: #666666;
+	color: #FFFFFF;
+	overflow: hidden;
+}
+
+.demo-WindowPanel .demo-WindowPanel-iframe {
+	border: none;
+	display: block;
+}
+
+.dragdrop-boundary {
+	background-color: #F8F8F8; /* light gray */
+	border: 1px solid black;
+}
+
+.demo-resize-html {
+	background-color: #DDEEDD; /* light green */
+	width: 100%;
+	height: 100%;
+	display: block;
+	border: 0px;
+}
+
+.demo-resize-edge {
+	background-image: url("drag_ndrop/dragger-4x4.gif");
+	background-repeat: repeat;
+	line-height: 1px;
+	font-size: 1px;
+}
+
+.demo-resize-nw .dragdrop-handle {
+	cursor: nw-resize;
+}
+
+.demo-resize-n .dragdrop-handle {
+	cursor: n-resize;
+}
+
+.demo-resize-ne .dragdrop-handle {
+	cursor: ne-resize;
+}
+
+.demo-resize-w .dragdrop-handle {
+	cursor: w-resize;
+}
+
+.demo-resize-e .dragdrop-handle {
+	cursor: e-resize;
+}
+
+.demo-resize-sw .dragdrop-handle {
+	cursor: sw-resize;
+}
+
+.demo-resize-s .dragdrop-handle {
+	cursor: s-resize;
+}
+
+.demo-resize-se .dragdrop-handle {
+	cursor: se-resize;
 }
