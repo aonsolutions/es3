@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import fr.hd3d.html5.video.client.VideoSource;
 import fr.hd3d.html5.video.client.VideoWidget;
 
-public class Drag_nDropWindow{
+public class Drag_nDropWindow {
 	
 	private HandlerManager handler;
 	private AbsolutePanel boundaryPanel;
@@ -75,7 +75,7 @@ public class Drag_nDropWindow{
 	
 	public void addHTML5PlayerWindow(String sourcePath){
 	    HTML header = new HTML(sourcePath);
-		VideoWidget videoPlayer = new VideoWidget(true, true, "");
+	    VideoWidget videoPlayer = new VideoWidget(true, true, "");
 		List<VideoSource> sources = new ArrayList<VideoSource>();
 		sources.add(new VideoSource(sourcePath));
 		videoPlayer.setSources(sources);
@@ -107,6 +107,57 @@ public class Drag_nDropWindow{
 	    WindowPanel windowPanel = new WindowPanel(windowController, header, map, false, handler);
 	    windowPanel.setStyleName("borderSettings");
 	    boundaryPanel.add(windowPanel, 70, 30);
+	    
+	    
 	}
-
+	
+	public void cascade() {
+	    int margin = boundaryPanel.getWidgetCount()*24 + 24;
+	    int width = boundaryPanel.getOffsetWidth() - margin;
+	    int height = boundaryPanel.getOffsetHeight() - margin;
+	    for ( int i = 0; i < boundaryPanel.getWidgetCount(); i++) {
+	    	WindowPanel aux = (WindowPanel) boundaryPanel.getWidget(i);
+	    	boundaryPanel.remove(i);
+	    	aux.setContentSize(width, height);
+//	    	aux.setSize(Integer.toString(width)+"px", Integer.toString(height)+"px");
+//	    	boundaryPanel.insert(aux, boundaryPanel.getAbsoluteLeft() + i*24, 24 + boundaryPanel.getAbsoluteTop() + i*24, i);
+    		boundaryPanel.insert(aux, 0 + i*24, 24 + 0 + i*24, i);
+	    }
+	}
+	
+	public void mosaic(){
+	    int cols = (int)Math.sqrt(boundaryPanel.getWidgetCount());
+	    int rows = (int)(Math.ceil( ((double)boundaryPanel.getWidgetCount()) / cols));
+	    int lastRow = boundaryPanel.getWidgetCount() - cols*(rows-1);
+	    int width, height;
+	 
+	    if ( lastRow == 0 ) {
+	        rows--;
+	        height = boundaryPanel.getOffsetHeight() / rows;
+	    }
+	    else {
+	        height = boundaryPanel.getOffsetHeight() / rows;
+	        if ( lastRow < cols ) {
+	            rows--;
+	            width = boundaryPanel.getOffsetWidth() / lastRow;
+	            for (int i = 0; i < lastRow; i++ ) {
+	            	WindowPanel aux = (WindowPanel) boundaryPanel.getWidget(cols*rows+i);
+	            	boundaryPanel.remove(cols*rows+i);
+	    	    	aux.setContentSize(width, height);
+	    	    	boundaryPanel.insert(aux, i*width, rows*height, cols*rows+i);
+	            }
+	        }
+	    }
+	            
+	    width = boundaryPanel.getOffsetWidth()/cols;
+	    for (int j = 0; j < rows; j++ ) {
+	        for (int i = 0; i < cols; i++ ) {
+            	WindowPanel aux = (WindowPanel) boundaryPanel.getWidget(i+j*cols);
+            	boundaryPanel.remove(i+j*cols);
+    	    	aux.setContentSize(width, height);
+    	    	boundaryPanel.insert(aux, i*width, j*height, i+j*cols);
+	        }
+	    }
+	}
+	
 }

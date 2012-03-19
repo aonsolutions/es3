@@ -31,6 +31,7 @@ import com.esferalia.es3.demo.client.tree.CustomNode;
 import com.esferalia.es3.demo.client.tree.FoldersAndFilesTree;
 import com.esferalia.es3.demo.client.tree.MissionTree;
 import com.esferalia.es3.demo.client.window.Drag_nDropWindow;
+import com.esferalia.es3.demo.client.window.WindowPanel;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -126,21 +127,19 @@ public class StreamingWeb implements EntryPoint {
 	private Label fileDescriptionLabel;
 	private Label fileDateLabel;
 	private Label fileMD5Label;
-	private DisclosurePanel disclosureHTML;
+//	private DisclosurePanel disclosureHTML;
 	private VideoWidget videoPlayer;
-	private DisclosurePanel disclosureFlow;
+//	private DisclosurePanel disclosureFlow;
 	private FlowPlayer fp;
-	private DisclosurePanel disclosureImage;
+//	private DisclosurePanel disclosureImage;
 	private Image pic;
-	private DisclosurePanel disclosureMap;
+//	private DisclosurePanel disclosureMap;
 	private LatLng[] listaLatLng;
 	private Polyline polilinea;
 	private MapWidget map;
 	private Marker mrk;
 	private Label footerLabel;
 	
-	// XXX De Drag_nDropPanel a Drag_nDropWindow
-	//	private Drag_nDrop boundaryPanel;
 	private Drag_nDropWindow boundaryPanel;
 	
 	private HorizontalPanel horizontalPanel;
@@ -180,13 +179,13 @@ public class StreamingWeb implements EntryPoint {
 		
 //		initializeMissions();
 		
-		initializeHTML5video();
+//		initializeHTML5video();
 		
-		initializeFlowplayer();
+//		initializeFlowplayer();
 		
-		initializeImageViewer();
+//		initializeImageViewer();
 		
-		initializeMapViewer();
+//		initializeMapViewer();
 		
 		treeService(null);
 	}
@@ -228,26 +227,25 @@ public class StreamingWeb implements EntryPoint {
 					private void showFileDisclosure(final PlaySelectedEvent event) {
 						// Video MP4 y FLV
 						if (event.getPath().endsWith(".mp4") || event.getPath().endsWith(".flv")){
-							stopPlayers();
-							disclosureHTML.setOpen(false);
+//							stopPlayers();
+//							disclosureHTML.setOpen(false);
 
-							disclosureImage.setOpen(false);
-							disclosureMap.setOpen(false);
+//							disclosureImage.setOpen(false);
+//							disclosureMap.setOpen(false);
 							// XXX De disclosurePanel a MDI
-							disclosureFlow.setOpen(false);
+//							disclosureFlow.setOpen(false);
 //							fp.play(event.getPath());
-//							boundaryPanel.addFlowPlayerPanel(event.getPath());
 							boundaryPanel.addFlowPlayerWindow(event.getPath());
 						}
 						// GWT-HTML5-VIDEO
 						// Video OGV y WEBM
 						// Audio MP3 y OGG
 						else if (event.getPath().endsWith(".mp3") || event.getPath().endsWith(".ogg") || event.getPath().endsWith(".ogv") || event.getPath().endsWith(".webm")){
-							disclosureHTML.setOpen(true);
-							disclosureFlow.setOpen(false);
-							disclosureImage.setOpen(false);
-							disclosureMap.setOpen(false);
-							disclosureHTML.remove(videoPlayer);
+//							disclosureHTML.setOpen(true);
+//							disclosureFlow.setOpen(false);
+//							disclosureImage.setOpen(false);
+//							disclosureMap.setOpen(false);
+//							disclosureHTML.remove(videoPlayer);
 							// XXX De disclosurePanel a MDI
 //							videoPlayer = new VideoWidget(true, true, "");
 //							List<VideoSource> sources = new ArrayList<VideoSource>();
@@ -258,16 +256,15 @@ public class StreamingWeb implements EntryPoint {
 //							else
 //								videoPlayer.setPixelSize(360, 140);
 //							disclosureHTML.setContent(videoPlayer);
-//							boundaryPanel.addHTML5PlayerPanel(event.getPath());
 							boundaryPanel.addHTML5PlayerWindow(event.getPath());
 						}
 						// Imagen JPG y PNG
 						else if (event.getPath().endsWith(".jpg") || event.getPath().endsWith(".png")){
-							disclosureHTML.setOpen(false);
-							disclosureFlow.setOpen(false);
-							disclosureMap.setOpen(false);
+//							disclosureHTML.setOpen(false);
+//							disclosureFlow.setOpen(false);
+//							disclosureMap.setOpen(false);
 							// XXX De disclosurePanel a MDI
-							disclosureImage.setOpen(false);
+//							disclosureImage.setOpen(false);
 //							pic.setUrl(event.getPath());
 //							pic.addClickHandler(new ClickHandler() {
 //								@Override
@@ -275,23 +272,22 @@ public class StreamingWeb implements EntryPoint {
 //									showPicOriginalSize(event.getPath());
 //								}
 //							});
-//							boundaryPanel.addImagePanel(event.getPath());
 							boundaryPanel.addImageWindow(event.getPath());
 						}
 						// Coordenadas XML
 						else if (event.getPath().endsWith(".xml")){
 							disclosureInfo.setOpen(false);
-							disclosureHTML.setOpen(false);
-							disclosureFlow.setOpen(false);
-							disclosureImage.setOpen(false);
+//							disclosureHTML.setOpen(false);
+//							disclosureFlow.setOpen(false);
+//							disclosureImage.setOpen(false);
 							sizeOfRecorrido(1, event.getPath());
 						}
 						else {
 							disclosureInfo.setOpen(false);
-							disclosureHTML.setOpen(false);
-							disclosureFlow.setOpen(false);
-							disclosureImage.setOpen(false);
-							disclosureMap.setOpen(false);
+//							disclosureHTML.setOpen(false);
+//							disclosureFlow.setOpen(false);
+//							disclosureImage.setOpen(false);
+//							disclosureMap.setOpen(false);
 							errorFileFormatPopUp();
 						}
 					}
@@ -696,7 +692,7 @@ public class StreamingWeb implements EntryPoint {
 		
 		infoPanel = new VerticalPanel();
 		disclosureInfo.setContent(infoPanel);
-		
+/*		
 		disclosureHTML = new DisclosurePanel("HTML5 Player");
 		disclosureHTML.setAnimationEnabled(true);
 		disclosureHTML.setOpen(false);
@@ -723,11 +719,37 @@ public class StreamingWeb implements EntryPoint {
 		
 		mappingPanel = new VerticalPanel();
 		disclosureMap.setContent(mappingPanel);
+	*/	
+		Button cascade = new Button();
+		cascade.setText("Cascade");
+		splitCentrePanel.add(cascade);
+		
+		Button mosaic = new Button();
+		mosaic.setText("Tile");
+		splitCentrePanel.add(mosaic);
 		
 		// XXX De Drag_nDropPanel a Drag_nDropWindow
 //		boundaryPanel = new Drag_nDrop(400, 400);
-		boundaryPanel = new Drag_nDropWindow(600, 400);
+		boundaryPanel = new Drag_nDropWindow(1000, 600);
 		splitCentrePanel.add(boundaryPanel.getBoundaryPanel());
+		
+		cascade.addClickHandler(new ClickHandler(){
+
+			@Override
+			public void onClick(ClickEvent event) {
+				boundaryPanel.cascade();
+			}
+			
+		});
+		
+		mosaic.addClickHandler(new ClickHandler(){
+
+			@Override
+			public void onClick(ClickEvent event) {
+				boundaryPanel.mosaic();
+			}
+			
+		});
 		
 		southPanel = new HorizontalPanel();
 		southPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
@@ -981,6 +1003,7 @@ public class StreamingWeb implements EntryPoint {
 		fileInfoPanel.add(fileMD5Label);
 	}
 	
+/*	
 	private void initializeHTML5video() {
 		videoPlayer = new VideoWidget(true, true, "");
 		// sources.add(new VideoSource("ES3/videos/bbb_trailer_400p.ogv"));
@@ -996,7 +1019,8 @@ public class StreamingWeb implements EntryPoint {
 			}
 		}, ContextMenuEvent.getType());
 	}
-
+*/
+/*	
 	private void initializeFlowplayer() {
 		fp = new FlowPlayer();
 		fp.setSize("360px", "240px");
@@ -1012,7 +1036,8 @@ public class StreamingWeb implements EntryPoint {
 			}
 		}, ContextMenuEvent.getType());
 	}
-
+*/
+/*	
 	private void initializeImageViewer() {
 		pic = new Image("");
 		pic.setSize("360px", "240px");
@@ -1026,7 +1051,8 @@ public class StreamingWeb implements EntryPoint {
 		}, ContextMenuEvent.getType());
 		disclosureImage.setContent(pic);
 	}
-	
+*/
+/*	
 	private void initializeMapViewer() {
 		// Código cambiado de lugar --> getCoordenadas/onSucces
 		// Es necesario cargar el mapa cuando el Disclosure esté abierto
@@ -1034,7 +1060,7 @@ public class StreamingWeb implements EntryPoint {
 		// En su lugar, se abre y se crea el mapa cada vez que se hace clic sobre el objeto del árbol
 		// En vez de utilizar siempre el mismo mapa y limpiarlo
 	}
-	
+*/	
 	private void treeService(final CustomNode selectedUINode) {
 		
 		// Initialize the service proxy.
@@ -1072,14 +1098,16 @@ public class StreamingWeb implements EntryPoint {
 //		scrollPanel.onResize();
 	}
 	
+/*	
 	private void stopPlayers(){
 		if(videoPlayer.isPlayed())
 			videoPlayer.playPause();
 	}
-
+*/
+	
 	private void showPicOriginalSize(String picPath) {
-		disclosureHTML.setOpen(false);
-		disclosureFlow.setOpen(false);
+//		disclosureHTML.setOpen(false);
+//		disclosureFlow.setOpen(false);
 		ScrollPanel scroll = new ScrollPanel();
 		Image pic = new Image(picPath);
 		scroll.setSize("1000px", "500px");
@@ -1159,7 +1187,6 @@ public class StreamingWeb implements EntryPoint {
 //						mappingPanel.clear();
 //						disclosureMap.setOpen(true);
 //						mappingPanel.add(buildUi());
-//						boundaryPanel.addGPSPanel(result, listaLatLng);
 						boundaryPanel.addGPSWindow(result, listaLatLng);
 					}
 
