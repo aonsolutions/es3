@@ -16,16 +16,14 @@ public class Flow
         }
     }
 
-
     public native Player createPlayer(String id)
     /*-{
-        return $wnd.$f(id, @com.esferalia.es3.demo.client.flowplayer.Flow::SWF_URL);
+        return $wnd.$f(id, { src: @com.esferalia.es3.demo.client.flowplayer.Flow::SWF_URL, wmode: "opaque" });
     }-*/;
-
 
     public native Player createPlayer(String id, String video)
     /*-{
-        return $wnd.$f(id, @com.esferalia.es3.demo.client.flowplayer.Flow::SWF_URL, video);
+        return $wnd.$f(id, { src: @com.esferalia.es3.demo.client.flowplayer.Flow::SWF_URL, wmode: "opaque" }, @com.esferalia.es3.demo.client.flowplayer.Flow::SWF_URL, video);
     }-*/;
 
 
