@@ -1,0 +1,44 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui' 
+	xmlns:es3='urn:import:com.esferalia.es3.demo.client'
+	xmlns:mdi='urn:import:com.esferalia.es3.demo.client.mdi' >
+
+  <ui:style>
+  .west {
+    border-right: 1px solid #bbbbbb;
+  }
+  .center {
+    border-left: 1px solid  #bbbbbb;
+  }
+	
+	</ui:style>
+<g:DockLayoutPanel>
+	
+	<g:north size='97'>
+		<g:FlowPanel>
+			<es3:TopPanel ui:field='topPanel' />
+			<es3:MainMenu ui:field="mainMenu" />
+		</g:FlowPanel>
+	</g:north>
+
+	<g:center>
+		<g:SplitLayoutPanel>
+		
+			<g:west size="275" >
+				<g:ScrollPanel ui:field="westPanel" styleName="{style.west}">
+				</g:ScrollPanel>
+			</g:west>
+			<g:center >
+				<mdi:MDIContainer ui:field="mdiContainer" styleName="{style.center}" />
+			</g:center>
+
+		</g:SplitLayoutPanel>
+
+	</g:center>
+
+</g:DockLayoutPanel>
+
+
+</ui:UiBinder>
+
+

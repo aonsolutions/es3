@@ -43,7 +43,7 @@
 	text-align: right;
 }
 
-/** Agregar un logo a un botón con texto
+/** Agregar un logo a un botï¿½n con texto
 .crearButton {
 	background: url(es3/video.png) no-repeat 10px 8px;
 	text-indent: 30px;
@@ -68,29 +68,6 @@
 	width: 100%;
 }
 
-/* .gwt-MenuBar {
-  cursor: default;
-}
-
-.gwt-MenuBar .gwt-MenuItem {
-  cursor: default;
-  font-family: Arial Unicode MS, Arial, sans-serif;
-}
-
-.gwt-MenuBar .gwt-MenuItem-selected {
-  background: #E3E8F3;
-}
-*/
-
-.gwt-MenuBar .gwt-MenuBar-horizontal {
-  background: #e3e8f3 url(es3/menuBar.png) repeat-x 0px -2003px;
-  border: 1px solid #e0e0e0;
-}
-
-.gwt-SplitLayoutPanel .gwt-SplitLayoutPanel-HDragger {
-  background: #e7e7e7 url(es3/separadorHeader.png) center center no-repeat;
-  cursor: col-resize;
-}
 
 .borderSettings {
 	border-color: black;
