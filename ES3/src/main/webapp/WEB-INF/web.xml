@@ -47,4 +47,13 @@
   	<url-pattern>/es3/xml</url-pattern>
   </servlet-mapping>
   
+  <servlet>
+  	<servlet-name>ImageServlet</servlet-name>
+  	<servlet-class>com.esferalia.es3.demo.servlet.ImageServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>ImageServlet</servlet-name>
+  	<url-pattern>/es3/image/*</url-pattern>
+  </servlet-mapping>
+
 </web-app>

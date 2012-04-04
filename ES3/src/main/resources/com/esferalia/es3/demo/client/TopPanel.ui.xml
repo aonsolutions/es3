@@ -115,14 +115,14 @@
 									<div class="{style.status}"></div>
 								</div>
 								<div style="display: none" class="aon-outputConnectionStatus-failed"></div>
-								<span class="{style.appTitle}"> / ES3</span>
+								<span class="{style.appTitle}"> / Electronic Signal Surveillance System</span>
 							</div>
 						</td>
 						<td class="{style.appInfo}">
 							<div style="border-left:1px solid #ccc;color:#999;">
-								<span>esferalia.com</span>
+								<span>stinville.es</span>
 								<span> / </span>
-								<span class="{style.appUser}">Raul Trepiana</span>
+								<span class="{style.appUser}">Demo</span>
 							</div>
 						</td>
 					</tr>
@@ -137,7 +137,7 @@
 						</a>
 					</div>
 				</div>
-				<span class="{style.appVersion}">Versión 7.0-SNAPSHOT</span>
+				<span class="{style.appVersion}">Versión 0.1-SNAPSHOT</span>
 			</div>
 		</div>
 	</g:HTMLPanel>

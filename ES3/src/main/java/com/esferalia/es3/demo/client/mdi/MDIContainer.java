@@ -1,6 +1,7 @@
 package com.esferalia.es3.demo.client.mdi;
 
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class MDIContainer extends Composite implements MDIWindow.Listener {
 		public void resize(MDIWindow mdiWindow, MaximizeHandler handler) {
 
 			mdiWindow.setPixelSize(width, height);
-			absPanel.add(mdiWindow, left, top);
+			MDIContainer.this.absPanel.setWidgetPosition(mdiWindow, left, top);
 
 			handler.setState4(new MDIWindowMaximizeState(), mdiWindow);
 		}
@@ -88,9 +89,12 @@ public class MDIContainer extends Composite implements MDIWindow.Listener {
 	private MaximizeHandler maximizeHandler;
 	
 	private List<Listener> listeners ;
+	
+	private List<MDIWindow> mdiWindows;
 
 	public MDIContainer() {
 		absPanel = new AbsolutePanel();
+		mdiWindows = new LinkedList<MDIWindow>();
 		maximizeHandler = new MaximizeHandler();
 		listeners = new LinkedList<MDIContainer.Listener>();
 		initWidget(absPanel);
@@ -102,19 +106,21 @@ public class MDIContainer extends Composite implements MDIWindow.Listener {
 
 		mdiWindow.setVisible(false);
 		absPanel.add(mdiWindow, 0, 0);
-
+		
 		// center the MDI window
 		int clientWidth = absPanel.getElement().getClientWidth();
 		int clientHeight = absPanel.getElement().getClientHeight();
 		int offsetWidth = mdiWindow.getOffsetWidth();
 		int offsetHeight = mdiWindow.getOffsetHeight();
-		int left = (clientWidth - offsetWidth) / 2;
-		int top = (clientHeight - offsetHeight) / 2;
+		int left = offsetWidth > 0 ? (clientWidth - offsetWidth) / 2 : clientWidth /3 ;
+		int top = offsetHeight > 0 ? (clientHeight - offsetHeight) / 2 : offsetHeight / 3;
 
-		absPanel.setWidgetPosition(mdiWindow, left, top);
+		absPanel.setWidgetPosition(mdiWindow, Math.max(left, 0), Math.max(top, 0) );
 		mdiWindow.setVisible(true);
 		
 		fireOnOpen(mdiWindow);
+		
+		setFocus(mdiWindow);
 	}
 
 	public final void removeAll() {
@@ -131,40 +137,39 @@ public class MDIContainer extends Composite implements MDIWindow.Listener {
 	public final void removeWindow(MDIWindow mdiWindow) {
 		removeWindowImpl(mdiWindow);
 		fireOnClose(mdiWindow);
+		remove(mdiWindow);
 	}
 
 	public void cascade() {
-		int count = absPanel.getWidgetCount();
-		int clientWidth= getClientWidth();
-		int clientHeight= getClientHeight();
-		for (int i = 0; i < count; i++) {
-			Widget mdiWindow = absPanel.getWidget(0);
+		int clientWidth= getRealClientWidth();
+		int clientHeight= getRealClientHeight();
+		for (int i = 0; i < mdiWindows.size(); i++) {
+			MDIWindow mdiWindow = mdiWindows.get(i);
 			mdiWindow.setPixelSize( 3 * clientWidth / 4 , 3 * clientHeight / 4 );
-			absPanel.add(mdiWindow, 25 * i , 25 * i );
+			absPanel.setWidgetPosition(mdiWindow, 25 * i , 25 * i );
 		}
 
 	}
 
 	public void tileVertical() {
-		int count = absPanel.getWidgetCount();
-		int clientWidth= getClientWidth();
-		int clientHeight= getClientHeight();
+		int count = mdiWindows.size();
+		int clientWidth= getRealClientWidth();
+		int clientHeight= getRealClientHeight();
 		for (int i = 0; i < count; i++) {
-			Widget mdiWindow = absPanel.getWidget(0);
+			MDIWindow mdiWindow = mdiWindows.get(i);
 			mdiWindow.setPixelSize(clientWidth / count , clientHeight);
-			absPanel.add(mdiWindow, clientWidth / count  * i , 0);
+			absPanel.setWidgetPosition(mdiWindow, clientWidth / count  * i , 0);
 		}
 	}
 
 	public void tileHorizontal() {
-		int count = absPanel.getWidgetCount();
-		int clientWidth= getClientWidth();
-		int clientHeight= getClientHeight();
-
+		int count = mdiWindows.size();
+		int clientWidth= getRealClientWidth();
+		int clientHeight= getRealClientHeight();
 		for (int i = 0; i < count; i++) {
-			Widget mdiWindow = absPanel.getWidget(0);
+			MDIWindow mdiWindow = mdiWindows.get(i);
+			absPanel.setWidgetPosition(mdiWindow, 0 , clientHeight / count  * i );
 			mdiWindow.setPixelSize(clientWidth , clientHeight / count);
-			absPanel.add(mdiWindow, 0 , clientHeight / count  * i );
 		}
 
 	}
@@ -183,10 +188,10 @@ public class MDIContainer extends Composite implements MDIWindow.Listener {
 	public void onMove(MDIWindow mdiWindow, int x, int y) {
 		int offsetX = getOffsetX(mdiWindow);
 		int offsetY = getOffsetY(mdiWindow);
-		absPanel.add(mdiWindow,
+		absPanel.setWidgetPosition(mdiWindow,
 				absPanel.getWidgetLeft(mdiWindow) + x - offsetX,
 				absPanel.getWidgetTop(mdiWindow) + y - offsetY);
-
+		setFocus(mdiWindow);
 	}
 
 	@Override
@@ -195,15 +200,8 @@ public class MDIContainer extends Composite implements MDIWindow.Listener {
 	}
 
 	public void setFocus(MDIWindow mdiWindow) {
-		int mdiCount = absPanel.getWidgetCount();
-		int mdiIndex = absPanel.getWidgetIndex(mdiWindow);
-		if (mdiIndex < mdiCount - 1) {
-			int left = absPanel.getWidgetLeft(mdiWindow);
-			int top = absPanel.getWidgetTop(mdiWindow);
-			// force our panel to the top of our z-index context
-			absPanel.add(mdiWindow, left, top);
-			fireOnFocus(mdiWindow);
-		}
+		add(mdiWindow);
+		fireOnFocus(mdiWindow);
 	}
 	
 	public void addListener(Listener listener) {
@@ -213,6 +211,29 @@ public class MDIContainer extends Composite implements MDIWindow.Listener {
 	public void removeListener(Listener listener) {
 		listeners.remove(listener);
 	}
+	
+	private void add(MDIWindow mdiWindow) {
+		remove(mdiWindow);
+		mdiWindows.add(mdiWindow);
+		mdiWindow.getElement().getStyle().setZIndex(mdiWindows.size()-1);
+	}	
+
+	public int getClientWidth() {
+		return absPanel.getElement().getClientWidth();
+	}
+	
+	public int getClientHeight() {
+		return absPanel.getElement().getClientHeight();
+	}
+
+	private void remove(MDIWindow mdiWindow) {
+		if ( mdiWindows.remove(mdiWindow) ){
+			for (int i = 0; i < mdiWindows.size(); i++) {
+				mdiWindows.get(i).getElement().getStyle().setZIndex(i);
+			}
+		}
+	}	
+	
 
 	private void removeWindowImpl(MDIWindow mdiWindow) {
 		absPanel.remove(mdiWindow);
@@ -227,14 +248,14 @@ public class MDIContainer extends Composite implements MDIWindow.Listener {
 		int offsetY = getOffsetY(mdiWindow);
 
 		mdiWindow.setPixelSize(clientWidth - offsetX, clientHeight - offsetY);
-		absPanel.add(mdiWindow, 0, 0);
+		absPanel.setWidgetPosition(mdiWindow, 0, 0);
 	}
 	
-	private int getClientWidth() {
+	private int getRealClientWidth() {
 		return absPanel.getElement().getClientWidth() - getOffsetX((MDIWindow)absPanel.getWidget(0));
 	}
 	
-	private int getClientHeight() {
+	private int getRealClientHeight() {
 		return absPanel.getElement().getClientHeight() - getOffsetY((MDIWindow)absPanel.getWidget(0));
 	}
 

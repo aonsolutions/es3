@@ -92,11 +92,9 @@ public class MainMenu extends Composite {
 		fileMenu.addItem("Cerrar", new AboutCommand());
 
 		// Create the view menu
-		MenuBar viewMenu = new MenuBar(true);
-		menu.addItem(new MenuItem("Ver", viewMenu));
-		
-		
-		viewMenu.addItem( new CheckMenuItem("Mostrar Barra Lateral", new AboutCommand() ));
+		//MenuBar viewMenu = new MenuBar(true);
+		//menu.addItem(new MenuItem("Ver", viewMenu));
+		//viewMenu.addItem( new CheckMenuItem("Mostrar Barra Lateral", new AboutCommand() ));
 
 		// viewMenu.addItem(new CheckBox("Mostrar Barra de Estado").getHTML(),
 		// new AboutCommand()).setEnabled(false);

@@ -6,7 +6,7 @@ import com.google.gwt.core.client.GWT;
 public class Flow
 {
     private static final String SWF_URL =
-            GWT.getModuleBaseURL() + "flowplayer-3.2.7.swf";
+    		"http://releases.flowplayer.org/swf/" + "flowplayer-3.2.8.swf";
 
 
     public Flow()
@@ -23,7 +23,7 @@ public class Flow
 
     public native Player createPlayer(String id, String video)
     /*-{
-        return $wnd.$f(id, { src: @com.esferalia.es3.demo.client.flowplayer.Flow::SWF_URL, wmode: "opaque" }, @com.esferalia.es3.demo.client.flowplayer.Flow::SWF_URL, video);
+        return $wnd.$f(id, { src: @com.esferalia.es3.demo.client.flowplayer.Flow::SWF_URL, wmode: "opaque" },  video);
     }-*/;
 
 

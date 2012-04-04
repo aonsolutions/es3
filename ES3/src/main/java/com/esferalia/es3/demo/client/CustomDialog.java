@@ -1,5 +1,6 @@
 package com.esferalia.es3.demo.client;
 
+import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
@@ -17,15 +18,37 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.ProvidesResize;
+import com.google.gwt.user.client.ui.RequiresResize;
+import com.google.gwt.user.client.ui.ResizeLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimpleLayoutPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class CustomDialog extends PopupPanel implements
 		CustomDialogBar.Listener {
 
 	private static final String DEFAULT_STYLENAME = "es3-CustomDialog";
-
+	
+	private static class SimpleResizePanel extends SimplePanel implements RequiresResize , ProvidesResize{
+		
+		public SimpleResizePanel() {
+			Element element = getElement();
+			element.getStyle().setPosition(Position.RELATIVE);
+		}
+		
+		@Override
+		public void onResize() {
+		    Widget child = getWidget();
+		    if ((child != null) && (child instanceof RequiresResize)) {
+		      ((RequiresResize) child).onResize();
+		    }
+		}
+		
+	}
+	
 	/**
 	 * Handles the logic to track click-drag movements with the mouse.
 	 */
@@ -159,12 +182,12 @@ public class CustomDialog extends PopupPanel implements
 	private class WindowResizeHandler {
 
 		public WindowResizeHandler() {
-			init(0, -3, 10, 4, "nw-resize", new NWWindowResizeHandler());
-			init(10, -3, 80, 4, "n-resize", new NWindowResizeHandler());
-			init(90, -3, 10, 4, "ne-resize", new NEWindowResizeHandler());
-			init(0, 99, 10, 4, "sw-resize" , new SWWindowResizeHandler());
-			init(10, 99, 80, 4, "s-resize", new SWindowResizeHandler() );
-			init(90, 99, 10, 4, "se-resize", new SEWindowResizeHandler());
+			init(0, -2, 10, 3, "nw-resize", new NWWindowResizeHandler());
+			init(10, -2, 80, 3, "n-resize", new NWindowResizeHandler());
+			init(90, -2, 10, 3, "ne-resize", new NEWindowResizeHandler());
+			init(0, 99, 10, 3, "sw-resize" , new SWWindowResizeHandler());
+			init(10, 99, 80, 3, "s-resize", new SWindowResizeHandler() );
+			init(90, 99, 10, 3, "se-resize", new SEWindowResizeHandler());
 			init(-2, 0, 3, 10, "nw-resize", new NWWindowResizeHandler());
 			init(-2, 10, 3, 80, "w-resize", new WWindowResizeHandler());
 			init(-2, 90, 3, 10, "sw-resize", new SWWindowResizeHandler());
@@ -216,10 +239,8 @@ public class CustomDialog extends PopupPanel implements
 
 	FocusPanel focusBar;
 	FocusPanel focusAll;
-
 	FocusPanel focusResize;
-
-	ScrollPanel simplePanel;
+	SimpleResizePanel simplePanel;
 	CustomDialogBar dialogBar;
 	FlowPanel flowPanel;
 
@@ -238,7 +259,7 @@ public class CustomDialog extends PopupPanel implements
 		focusBar = new FocusPanel(dialogBar);
 		flowPanel.add(focusBar);
 
-		simplePanel = new ScrollPanel();
+		simplePanel = new SimpleResizePanel();
 		flowPanel.add(simplePanel);
 
 		focusAll = new FocusPanel(flowPanel);
