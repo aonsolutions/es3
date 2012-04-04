@@ -25,7 +25,7 @@ public abstract class DatabaseConnection {
 
 		Connection conn = null;
 
-		String url  = "192.168.2.100:3306/";
+		String url  = "127.0.0.1:3306/";
 		String db = "es3";
 		String driver ="com.mysql.jdbc.Driver";
 		String user = "dbuser";

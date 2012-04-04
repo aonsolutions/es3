@@ -23,8 +23,8 @@ import com.google.gwt.user.client.ui.TreeItem;
 
 public class MissionTree extends Composite {
 	
-	// FIXME MissionTree BASEPATH
-	private static String BASEPATH = "http://192.168.2.107:80/es3/mission/";
+	
+	private static final String PREFFIX = "/mission/";
 	
 	private Tree missionTree;
 	private Images images = (Images) GWT.create(Images.class);
@@ -64,8 +64,10 @@ public class MissionTree extends Composite {
 				}
 			}
 			
+			
+			
 			private String getRelativePath(int id, int mission, FileType type, String extension) {
-				return BASEPATH + Integer.toString(mission) + "/" + type.toString() + "/" + Integer.toString(id) + extension;
+				return GWT.getHostPageBaseURL() + PREFFIX + Integer.toString(mission) + "/" + type.toString() + "/" + Integer.toString(id) + extension;
 			}
 		});
 		

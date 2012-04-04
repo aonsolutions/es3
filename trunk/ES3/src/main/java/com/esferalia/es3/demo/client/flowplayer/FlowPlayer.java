@@ -44,7 +44,7 @@ public class FlowPlayer
     }
 
 
-    protected Player getPlayer()
+    public Player getPlayer()
     {
         return player;
     }

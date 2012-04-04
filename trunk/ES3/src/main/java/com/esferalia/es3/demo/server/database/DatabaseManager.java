@@ -299,7 +299,7 @@ public class DatabaseManager extends DatabaseConnection {
 			String query =
 					"select mission.`id`, mission.`name`, file.`id`, file.`name`, file.`type` "
 					+ " from mission left join file on `mission`.id = `file`.`mission` "
-					+ " order by mission.id, `file`.`type` ;";
+					+ " order by mission.id, `file`.`type`, `file`.`name` ;";
 			rs1 = stmt.executeQuery(query);
 			rs1.next();
 			while (!rs1.isAfterLast()) {
