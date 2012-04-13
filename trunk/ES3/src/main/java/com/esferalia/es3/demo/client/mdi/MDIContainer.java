@@ -173,6 +173,18 @@ public class MDIContainer extends Composite implements MDIWindow.Listener {
 		}
 
 	}
+	
+	public void center(MDIWindow mdiWindow){
+		// center the MDI window
+		int clientWidth = absPanel.getElement().getClientWidth();
+		int clientHeight = absPanel.getElement().getClientHeight();
+		int offsetWidth = mdiWindow.getOffsetWidth();
+		int offsetHeight = mdiWindow.getOffsetHeight();
+		int left = offsetWidth > 0 ? (clientWidth - offsetWidth) / 2 : clientWidth /3 ;
+		int top = offsetHeight > 0 ? (clientHeight - offsetHeight) / 2 : offsetHeight / 3;
+
+		absPanel.setWidgetPosition(mdiWindow, Math.max(left, 0), Math.max(top, 0) );
+	}
 
 	@Override
 	public void onClose(MDIWindow mdiWindow) {
@@ -198,6 +210,11 @@ public class MDIContainer extends Composite implements MDIWindow.Listener {
 	public void onClick(MDIWindow mdiWindow, ClickEvent clickEvent) {
 		setFocus(mdiWindow);
 	}
+
+	public MDIWindow getFocus() {
+		return mdiWindows.isEmpty() ? null : mdiWindows.get(mdiWindows.size()-1);
+	}
+	
 
 	public void setFocus(MDIWindow mdiWindow) {
 		add(mdiWindow);

@@ -3,18 +3,13 @@ package com.esferalia.es3.demo.client;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.LabelElement;
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DirectionalTextHelper;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
-import com.google.gwt.user.client.ui.RootLayoutPanel;
 
 public class MainMenu extends Composite {
 
@@ -77,19 +72,31 @@ public class MainMenu extends Composite {
 		MenuBar missionMenu = new MenuBar(true);
 		menu.addItem(new MenuItem("Misión", missionMenu));
 		missionMenu.addItem("Nueva", new NewMissionCommand());
-		missionMenu.addItem("Eliminar", new AboutCommand());
+		missionMenu.addItem("Eliminar", new AboutCommand()).setEnabled(false);
 		missionMenu.addSeparator();
-		missionMenu.addItem("Propiedades", new EditMissionCommand());
+		missionMenu.addItem("Propiedades", new EditMissionCommand()).setEnabled(false);
 
 		// Create the file menu
 		MenuBar fileMenu = new MenuBar(true);
 		menu.addItem(new MenuItem("Archivo", fileMenu));
-		fileMenu.addItem("Nuevo", new HelpCommand());
-		fileMenu.addItem("Eliminar", new AboutCommand());
+		fileMenu.addItem("Nuevo", new HelpCommand()).setEnabled(false);
+		fileMenu.addItem("Eliminar", new AboutCommand()).setEnabled(false);
 		fileMenu.addSeparator();
-		fileMenu.addItem("Propiedades", new AboutCommand());
+		fileMenu.addItem("Guardar", new SaveCommand());
 		fileMenu.addSeparator();
-		fileMenu.addItem("Cerrar", new AboutCommand());
+		fileMenu.addItem("Propiedades", new AboutCommand()).setEnabled(false);
+		fileMenu.addSeparator();
+		fileMenu.addItem("Cerrar", new AboutCommand()).setEnabled(false);
+
+		// Create the video menu
+		MenuBar videoMenu = new MenuBar(true);
+		menu.addItem(new MenuItem("Video", videoMenu));
+		videoMenu.addItem( "Capturar Pantalla", new CaptureScreenCommand() );
+
+		// Create the view menu
+		//MenuBar viewMenu = new MenuBar(true);
+		//menu.addItem(new MenuItem("Ver", viewMenu));
+		//viewMenu.addItem( new CheckMenuItem("Mostrar Barra Lateral", new AboutCommand() ));
 
 		// Create the view menu
 		//MenuBar viewMenu = new MenuBar(true);
@@ -114,9 +121,9 @@ public class MainMenu extends Composite {
 		// Create the help menu
 		MenuBar helpMenu = new MenuBar(true);
 		menu.addItem(new MenuItem("Ayuda", helpMenu));
-		helpMenu.addItem("Ayuda", new HelpCommand());
+		helpMenu.addItem("Ayuda", new HelpCommand()).setEnabled(false);
 		helpMenu.addSeparator();
-		helpMenu.addItem("Acerca de ...", new AboutCommand());
+		helpMenu.addItem("Acerca de ...", new AboutCommand()).setEnabled(false);
 
 		initWidget(menu);
 	}
@@ -130,6 +137,14 @@ public class MainMenu extends Composite {
 		public void execute() {
 			// TODO Auto-generated method stub
 
+		}
+	}
+
+
+	private class SaveCommand implements Command {
+		@Override
+		public void execute() {
+			es3.save();
 		}
 	}
 
@@ -188,4 +203,12 @@ public class MainMenu extends Composite {
 			es3.tileHorizontal();
 		}
 	}
+
+	private class CaptureScreenCommand implements Command {
+		@Override
+		public void execute() {
+			es3.captureScreen();
+		}
+	}
+	
 }

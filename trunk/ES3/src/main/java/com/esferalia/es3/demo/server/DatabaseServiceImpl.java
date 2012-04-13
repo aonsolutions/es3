@@ -3,9 +3,6 @@ package com.esferalia.es3.demo.server;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Vector;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.esferalia.es3.demo.client.dto.File;
 import com.esferalia.es3.demo.client.dto.Mission;
@@ -15,7 +12,6 @@ import com.esferalia.es3.demo.client.exception.DirectoryException;
 import com.esferalia.es3.demo.client.service.DatabaseService;
 import com.esferalia.es3.demo.server.database.DatabaseManager;
 import com.esferalia.es3.demo.server.directory.DirectoryManager;
-
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class DatabaseServiceImpl extends RemoteServiceServlet implements
@@ -97,7 +93,7 @@ public class DatabaseServiceImpl extends RemoteServiceServlet implements
 	}
 	
 	@Override
-	public void insertFile(File file) throws DatabaseException, DirectoryException {
+	public File insertFile(File file) throws DatabaseException, DirectoryException {
 		int id;
 		try {
 			dbmanager.getConnection();
@@ -117,6 +113,8 @@ public class DatabaseServiceImpl extends RemoteServiceServlet implements
 			e.printStackTrace();
 			throw new DirectoryException(e.toString());
 		}
+		return file;
+		
 	}
 
 	@Override

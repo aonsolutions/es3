@@ -1,6 +1,8 @@
 package com.esferalia.es3.demo.client;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
@@ -10,11 +12,13 @@ import java.util.Vector;
 
 import com.esferalia.es3.demo.client.ES3.PathPlayer.ResizableMapWidget;
 import com.esferalia.es3.demo.client.dto.Coordenada;
+import com.esferalia.es3.demo.client.dto.File;
 import com.esferalia.es3.demo.client.dto.FileCell;
 import com.esferalia.es3.demo.client.dto.FileType;
 import com.esferalia.es3.demo.client.dto.MissionCell;
 import com.esferalia.es3.demo.client.event.PlaySelectedEvent;
 import com.esferalia.es3.demo.client.event.PlaySelectedEventHandler;
+import com.esferalia.es3.demo.client.flowplayer.Clip;
 import com.esferalia.es3.demo.client.flowplayer.FlowPlayer;
 import com.esferalia.es3.demo.client.flowplayer.State;
 import com.esferalia.es3.demo.client.mdi.MDIContainer;
@@ -29,7 +33,21 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.RepeatingCommand;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.event.logical.shared.AttachEvent;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
+import com.google.gwt.event.dom.client.DragEvent;
+import com.google.gwt.event.dom.client.DragHandler;
+import com.google.gwt.event.dom.client.DragStartEvent;
+import com.google.gwt.event.dom.client.DragStartHandler;
+import com.google.gwt.event.dom.client.HasAllMouseHandlers;
+import com.google.gwt.event.dom.client.LoadEvent;
+import com.google.gwt.event.dom.client.LoadHandler;
+import com.google.gwt.event.dom.client.MouseDownEvent;
+import com.google.gwt.event.dom.client.MouseDownHandler;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.maps.client.HasMap;
 import com.google.gwt.maps.client.HasMapOptions;
@@ -42,15 +60,15 @@ import com.google.gwt.maps.client.base.Size;
 import com.google.gwt.maps.client.event.Event;
 import com.google.gwt.maps.client.event.HasMouseEvent;
 import com.google.gwt.maps.client.event.MouseEventCallback;
-import com.google.gwt.maps.client.overlay.HasMarkerOptions;
 import com.google.gwt.maps.client.overlay.HasPolylineOptions;
 import com.google.gwt.maps.client.overlay.Marker;
 import com.google.gwt.maps.client.overlay.MarkerImage;
 import com.google.gwt.maps.client.overlay.Polyline;
 import com.google.gwt.maps.client.overlay.PolylineOptions;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
-import com.google.gwt.resources.client.ClientBundle.Source;
 import com.google.gwt.resources.client.CssResource.NotStrict;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -62,10 +80,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -118,6 +136,10 @@ public class ES3 implements EntryPoint {
 			es3.mdiContainer.addListener(this);
 		}
 
+		Collection<MDIWindow> openMDIWindows() {
+			return pathMap.values();
+		}
+
 		String get(MDIWindow mdiWindow) {
 			return mdiMap.get(mdiWindow);
 		}
@@ -164,7 +186,7 @@ public class ES3 implements EntryPoint {
 			FlowPlayer player;
 			double time;
 			Marker marker;
-			
+
 			boolean isDragging;
 			int dragSecs;
 
@@ -206,14 +228,17 @@ public class ES3 implements EntryPoint {
 							@Override
 							public void callback(HasMouseEvent event) {
 								PlayerMap.this.isDragging = true;
-								Scheduler.get().scheduleFixedPeriod(new RepeatingCommand() {
-									
-									@Override
-									public boolean execute() {
-										PlayerMap.this.player.getPlayer().seek(dragSecs);
-										return isDragging;
-									}
-								}, DELAY);
+								Scheduler.get().scheduleFixedPeriod(
+										new RepeatingCommand() {
+
+											@Override
+											public boolean execute() {
+												PlayerMap.this.player
+														.getPlayer().seek(
+																dragSecs);
+												return isDragging;
+											}
+										}, DELAY);
 							}
 						});
 
@@ -388,7 +413,8 @@ public class ES3 implements EntryPoint {
 
 		MDIWindow createMDIWindow(PlaySelectedEvent event, ES3 es3) {
 			MDIWindow mdiWindow = new MDIWindow();
-			String caption = event.getNode().getText();
+			String caption = event.getNode() != null ? event.getNode()
+					.getText() : event.getShortName();
 			mdiWindow.setCaption(caption);
 			return mdiWindow;
 		}
@@ -421,17 +447,30 @@ public class ES3 implements EntryPoint {
 
 		static String getExt(String path) {
 			int dot = path.lastIndexOf('.');
-			return dot < 0 ? null : path.substring(dot + 1);
+			if (dot < 0) {
+				return null;
+			}
+			int query = path.lastIndexOf('?');
+
+			return query < 0 ? path.substring(dot + 1) : path.substring(
+					dot + 1, query);
 		}
 	}
 
 	static class ImagePlayer extends ExtPlayer {
 
-		static class ResizableImage extends Image implements RequiresResize {
+		static class ResizableImage extends Image implements RequiresResize,
+				LoadHandler, DoubleClickHandler, MouseMoveHandler,
+				MouseUpHandler, MouseDownHandler {
 
 			public ResizableImage(String url) {
 				super();
 				setUrl(url);
+				addLoadHandler(this);
+				addMouseUpHandler(this);
+				addMouseDownHandler(this);
+				addMouseMoveHandler(this);
+				addDoubleClickHandler(this);
 			}
 
 			@Override
@@ -449,7 +488,9 @@ public class ES3 implements EntryPoint {
 
 				int width = Math.min(availWidth, scaleWidth);
 				int height = Math.min(availHeight, scaleHeight);
+				
 
+				DOM.setStyleAttribute(getElement(), "clips", null);
 				DOM.setStyleAttribute(getElement(), "width", width + "px");
 				DOM.setStyleAttribute(getElement(), "height", height + "px");
 
@@ -460,6 +501,178 @@ public class ES3 implements EntryPoint {
 				DOM.setStyleAttribute(getElement(), "top", top + "px");
 			}
 
+			@Override
+			public void onLoad(LoadEvent event) {
+				MDIWindow mdiWindow = null;
+				for (Widget parent = getParent(); parent != null; parent = parent
+						.getParent()) {
+					if (parent instanceof RootPanel) {
+						return;
+					}
+					if (parent instanceof MDIWindow) {
+						mdiWindow = (MDIWindow) parent;
+					}
+					if (parent instanceof MDIContainer) {
+						
+						
+						MDIContainer mdiContainer = (MDIContainer) parent;
+						int availWidth = mdiContainer.getClientWidth();
+						int availHeight = mdiContainer.getClientHeight();
+						if ( getHeight() > availHeight || getWidth() > availWidth ){
+							mdiContainer.onMaximize(mdiWindow);
+						}
+						else {
+							mdiContainer.center(mdiWindow);
+						}
+						return;
+					}
+				}
+			}
+
+			private static RegExp CLIP_REGEXP = RegExp
+					.compile("([0-9]+)px\\s*,\\s*([0-9]+)px\\s*,\\s*([0-9]+)px\\s*,\\s*([0-9]+)px");
+
+			@Override
+			public void onDoubleClick(DoubleClickEvent event) {
+				try {
+					float ZOOM = 1.5f;
+					
+					Widget parent = getParent();
+
+					int clipTop = 0;
+					int clipLeft = 0;
+					int clipRigth = parent.getElement().getClientWidth();
+					int clipBottom = parent.getElement().getClientHeight();
+					String clip = DOM.getStyleAttribute(getElement(), "clip");
+					MatchResult matchResult = clip != null ? CLIP_REGEXP
+							.exec(clip) : null;
+					if (matchResult != null) {
+						clipTop = Integer.valueOf(matchResult.getGroup(1));
+						clipRigth = Integer.valueOf(matchResult.getGroup(2)); 
+						clipBottom = Integer.valueOf(matchResult.getGroup(3)); 
+						clipLeft = Integer.valueOf(matchResult.getGroup(4));
+					}
+					int clipWidth = clipRigth - clipLeft;
+					int clipHeight = clipBottom - clipTop;
+
+					int x = event.getRelativeX(getElement());
+					int y = event.getRelativeY(getElement());
+					int offsetX = x - clipWidth / 2 ;
+					int offsetY = y - clipHeight / 2 ;
+					
+
+					int imageWidth = getOffsetWidth();
+					int imageHeight = getOffsetHeight();
+					imageWidth  = Math.round(imageWidth * ZOOM);
+					imageHeight = Math.round(imageHeight * ZOOM);
+					
+					clipLeft += x * ZOOM - clipWidth / 2;//Math.round(offsetX * ZOOM);
+					clipTop += y * ZOOM - clipHeight / 2 ;//Math.round(offsetY * ZOOM);
+					
+					if ( clipTop < 0 ) 
+						clipTop = 0;
+					if ( clipLeft < 0 ) 
+						clipLeft = 0;
+					if ( clipTop + clipHeight > imageHeight ) 
+						clipTop = imageHeight - clipHeight;
+					if ( clipLeft + clipWidth > imageWidth ) 
+						clipLeft = imageWidth - clipWidth;
+					
+					clipRigth = clipLeft + clipWidth;
+					clipBottom = clipTop + clipHeight;
+					
+					parent.setPixelSize(parent.getOffsetWidth(), parent.getOffsetHeight());
+					
+					DOM.setStyleAttribute(getElement(), "position", "absolute");
+					DOM.setStyleAttribute(getElement(), "left", -clipLeft + "px");
+					DOM.setStyleAttribute(getElement(), "top", -clipTop + "px");
+					DOM.setStyleAttribute(getElement(), "clip", "rect( " 
+							+ clipTop + "px,"
+							+ clipRigth + "px," 
+							+ clipBottom + "px,"
+							+ clipLeft + "px)");
+					DOM.setStyleAttribute(getElement(), "width", imageWidth + "px");
+					DOM.setStyleAttribute(getElement(), "height", imageHeight + "px");
+
+				} catch (Exception e) {
+					Window.alert(e.getLocalizedMessage());
+				}
+			}
+			
+			protected int dragStartX;
+			protected int dragStartY;
+			protected boolean dragging = false;
+
+
+			public void onMouseDown(MouseDownEvent event) {
+				dragging = true;
+				Widget widget = (Widget) event.getSource();
+				DOM.setCapture(widget.getElement());
+				dragStartX = event.getClientX();
+				dragStartY = event.getClientY();
+				DOM.eventPreventDefault(DOM.eventGetCurrentEvent());
+			}
+
+			public void onMouseMove(MouseMoveEvent event) {
+				if (dragging) {
+					handleDrag(event.getClientX() - dragStartX, event.getClientY()
+							- dragStartY);
+					dragStartX = event.getClientX();
+					dragStartY = event.getClientY();
+				}
+			}
+
+			public void onMouseUp(MouseUpEvent event) {
+				dragging = false;
+				Widget widget = (Widget) event.getSource();
+				DOM.releaseCapture(widget.getElement());
+			}
+			
+			protected void handleDrag(int absX, int absY) {
+				int clipTop = 0;
+				int clipLeft = 0;
+				int clipRigth = getOffsetWidth();
+				int clipBottom = getOffsetHeight();
+				String clip = DOM.getStyleAttribute(getElement(), "clip");
+				MatchResult matchResult = clip != null ? CLIP_REGEXP
+						.exec(clip) : null;
+				if (matchResult != null) {
+					clipTop = Integer.valueOf(matchResult.getGroup(1));
+					clipRigth = Integer.valueOf(matchResult.getGroup(2)); 
+					clipBottom = Integer.valueOf(matchResult.getGroup(3)); 
+					clipLeft = Integer.valueOf(matchResult.getGroup(4));
+				}
+				int clipWidth = clipRigth - clipLeft;
+				int clipHeight = clipBottom - clipTop;
+
+				clipTop -= absY;
+				clipLeft -= absX;
+				if ( clipTop < 0 ) 
+					clipTop = 0;
+				if ( clipLeft < 0 ) 
+					clipLeft = 0;
+				int imageWidth = getOffsetWidth();
+				int imageHeight = getOffsetHeight();
+				if ( clipTop + clipHeight > imageHeight ) 
+					clipTop = imageHeight - clipHeight;
+				if ( clipLeft + clipWidth > imageWidth ) 
+					clipLeft = imageWidth - clipWidth;
+				clipRigth = clipLeft + clipWidth;
+				clipBottom = clipTop + clipHeight;
+				
+				
+				Widget parent = getParent();
+				parent.setPixelSize(parent.getOffsetWidth(), parent.getOffsetHeight());
+				DOM.setStyleAttribute(getElement(), "position", "absolute");
+				DOM.setStyleAttribute(getElement(), "left", -clipLeft + "px");
+				DOM.setStyleAttribute(getElement(), "top", -clipTop + "px");
+				DOM.setStyleAttribute(getElement(), "clip", "rect( " 
+						+ clipTop + "px,"
+						+ clipRigth + "px," 
+						+ clipBottom + "px,"
+						+ clipLeft + "px)");
+			}
+			
 		}
 
 		private ImagePlayer() {
@@ -550,26 +763,53 @@ public class ES3 implements EntryPoint {
 			map.setPath(path);
 
 			TreeItem mission = getMission(event.getNode());
-			for (int i = 0; i < path.size(); i++) {
-				HasLatLng latLng = path.get(i);
-				FileCell image = getImage(i, latLng, event, es3);
-				if (image == null) {
-					continue;
+			/*
+			 * for (int i = 0; i < path.size() ; i++) {
+			 * 
+			 * HasLatLng latLng = path.get(i / 10); FileCell image = getImage(i
+			 * * 10, latLng, event, es3); if (image == null) { continue; }
+			 * Marker marker = new Marker(); marker.setZIndex(0);
+			 * marker.setVisible(true); marker.setPosition(latLng);
+			 * marker.setClickable(true); marker.setMap(map.getMap());
+			 * marker.setTitle(image.getShortName()); String url =
+			 * getPath(image); MarkerImage.Builder builder = new
+			 * MarkerImage.Builder(url); builder.setScaledSize(new Size(32,
+			 * 32)); marker.setIcon(builder.build()); Event.addListener(marker,
+			 * "click", new ImageClickHadler(es3, getNode(image, mission))); }
+			 */
+
+			MissionCell missionCell = (MissionCell) mission.getUserObject();
+			FileCell gpsFile = (FileCell) event.getNode().getUserObject();
+
+			RegExp regExp = RegExp.compile(gpsFile.getShortName()
+					+ " ([0-9]{4})");
+
+			Vector<FileCell> images = missionCell.getImages();
+			for (FileCell image : images) {
+				MatchResult matchResult = regExp.exec(image.getShortName());
+				if (matchResult != null) {
+					int secs = Integer.parseInt(matchResult.getGroup(1));
+
+					HasLatLng latLng = map.getLatLng(secs * 1000);
+
+					Marker marker = new Marker();
+					marker.setZIndex(0);
+					marker.setVisible(true);
+					marker.setPosition(latLng);
+					marker.setClickable(true);
+					marker.setMap(map.getMap());
+					marker.setTitle(image.getShortName());
+					String url = getPath(image);
+					MarkerImage.Builder builder = new MarkerImage.Builder(url);
+					builder.setScaledSize(new Size(32, 32));
+					marker.setIcon(builder.build());
+					Event.addListener(marker, "click", new ImageClickHadler(
+							es3, getNode(image, mission)));
+
+					// Window.alert(image.getShortName() + " " + secs);
 				}
-				Marker marker = new Marker();
-				marker.setZIndex(0);
-				marker.setVisible(true);
-				marker.setPosition(latLng);
-				marker.setClickable(true);
-				marker.setMap(map.getMap());
-				marker.setTitle(image.getShortName());
-				String url = getPath(image);
-				MarkerImage.Builder builder = new MarkerImage.Builder(url);
-				builder.setScaledSize(new Size(32, 32));
-				marker.setIcon(builder.build());
-				Event.addListener(marker, "click", new ImageClickHadler(es3,
-						getNode(image, mission)));
 			}
+
 			MDIWindow mdiWindow = createMDIWindow(event, es3);
 
 			mdiWindow.setWidget(map);
@@ -594,7 +834,7 @@ public class ES3 implements EntryPoint {
 			return null;
 		}
 
-		static FileCell getImage(int index, HasLatLng latLng,
+		static FileCell getImage(int time, HasLatLng latLng,
 				PlaySelectedEvent event, ES3 es3) {
 
 			TreeItem node = event.getNode();
@@ -604,7 +844,7 @@ public class ES3 implements EntryPoint {
 
 			FileCell gpsFile = (FileCell) node.getUserObject();
 
-			String secs = "000" + index * 10;
+			String secs = "000" + time;
 
 			String imageName = gpsFile.getShortName() + " "
 					+ secs.substring(secs.length() - 4);
@@ -685,16 +925,35 @@ public class ES3 implements EntryPoint {
 				this.path = path;
 			}
 
+			void addImageMarker(FileCell image, long time, ES3 es3,
+					TreeItem mission) {
+				HasLatLng latLng = getLatLng(time);
+
+				Marker marker = new Marker();
+				marker.setZIndex(0);
+				marker.setVisible(true);
+				marker.setPosition(latLng);
+				marker.setClickable(true);
+				marker.setMap(getMap());
+				marker.setTitle(image.getShortName());
+				String url = getPath(image);
+				MarkerImage.Builder builder = new MarkerImage.Builder(url);
+				builder.setScaledSize(new Size(32, 32));
+				marker.setIcon(builder.build());
+				Event.addListener(marker, "click", new ImageClickHadler(es3,
+						getNode(image, mission)));
+			}
+
 			/**
 			 * Fetches angle relative to screen centre point where 3 O'Clock is
 			 * 0 and 12 O'Clock is 270 degrees
 			 */
 			public double getAngle(double time) {
 				double latLngTime = time / 10000;
-				
+
 				int index = (int) Math.floor(latLngTime);
 				HasLatLng start = path.get(index);
-				HasLatLng end = path.get(index +1 );
+				HasLatLng end = path.get(index + 1);
 
 				double dlng = end.getLongitude() - start.getLongitude();
 				double dlat = -(end.getLatitude() - start.getLatitude());
@@ -798,10 +1057,19 @@ public class ES3 implements EntryPoint {
 		}
 	}
 
+	static interface VideoPlayer {
+		double getTime();
+
+		String getVideoId();
+
+		String getVideoUrl();
+
+	}
+
 	static class FlashVideoPlayer extends ExtPlayer {
 
 		private static class ResizableFlowPlayer extends FlowPlayer implements
-				RequiresResize {
+				RequiresResize, VideoPlayer {
 
 			public ResizableFlowPlayer() {
 				super();
@@ -817,6 +1085,27 @@ public class ES3 implements EntryPoint {
 				int availWidth = parentEl.getClientWidth();
 				int availHeight = parentEl.getClientHeight();
 				setPixelSize(availWidth, availHeight);
+			}
+
+			@Override
+			public double getTime() {
+				return getPlayer().getTime();
+			}
+
+			@Override
+			public String getVideoUrl() {
+				Clip clip = getPlayer().getClip();
+				return clip != null ? clip.getCompleteUrl() : null;
+			}
+
+			@Override
+			public String getVideoId() {
+				String url = getVideoUrl();
+				String file = url.substring(url.lastIndexOf('/') + 1);
+				int lastDot = file.lastIndexOf('.');
+				String id = file.substring(0,
+						lastDot != -1 ? lastDot : file.length());
+				return id;
 			}
 		}
 
@@ -893,6 +1182,7 @@ public class ES3 implements EntryPoint {
 	@UiField
 	MDIContainer mdiContainer;
 
+	private MissionTree missionTree;
 	private HandlerManager handlerManager;
 	private DatabaseServiceAsync databaseService;
 	private MDIWindowOpenManager openManager;
@@ -932,6 +1222,53 @@ public class ES3 implements EntryPoint {
 		videoMapSynchronizer = new VideoMapSynchronizer();
 	}
 
+	protected void save() {
+		try {
+			final MDIWindow mdiWindow = mdiContainer.getFocus();
+
+			Widget widget = mdiWindow.getWidget();
+			if (widget instanceof Image) {
+				Image image = (Image) widget;
+
+				File file = new File();
+				file.setMD5("");
+				file.setDescription("");
+				file.setMission(getMission());
+				file.setDate_time(new Date());
+				file.setFileType(FileType.imagen);
+				file.setName(mdiWindow.getCaption() + ".png");
+
+				databaseService.insertFile(file, new AsyncCallback<File>() {
+
+					@Override
+					public void onSuccess(File file) {
+						FileCell imageCell = new FileCell();
+						imageCell.setId(file.getId());
+						imageCell.setType(file.getFileType());
+						imageCell.setOriginalName(file.getName());
+						imageCell.setShortName(mdiWindow.getCaption());
+						imageCell.setMission(file.getMission());
+						TreeItem imageItem = new TreeItem(imageCell
+								.getShortName());
+						imageItem.setUserObject(imageCell);
+
+						addImage(imageCell);
+
+						syncMap(imageCell);
+					}
+
+					@Override
+					public void onFailure(Throwable caught) {
+						Window.alert(caught.getMessage());
+					}
+				});
+			}
+
+		} catch (Exception e) {
+			Window.alert(e.getMessage());
+		}
+	}
+
 	protected void closeAll() {
 		mdiContainer.removeAll();
 	}
@@ -952,6 +1289,95 @@ public class ES3 implements EntryPoint {
 		mdiContainer.setFocus(mdiWindow);
 	}
 
+	protected void captureScreen() {
+		try {
+
+			for (MDIWindow mdiWindow : openManager.openMDIWindows()) {
+
+				if (mdiWindow.getWidget() instanceof VideoPlayer) {
+					VideoPlayer videoPlayer = (VideoPlayer) mdiWindow
+							.getWidget();
+					String videoId = videoPlayer.getVideoId();
+					double time = videoPlayer.getTime();
+
+					PlaySelectedEvent playEvent = new PlaySelectedEvent();
+
+					String path = GWT.getModuleBaseURL() + "capture/" + videoId
+							+ ".png?time=" + (time * 1000);
+					playEvent.setPath(path);
+
+					String secs = "000" + (int) Math.floor(time);
+					String shortName = mdiWindow.getCaption() + " "
+							+ secs.substring(secs.length() - 4);
+					playEvent.setShortName(shortName);
+					playEvent.setOriginalName(shortName);
+
+					play(playEvent);
+
+					return;
+				}
+			}
+		} catch (Exception e) {
+			Window.alert(e.getMessage());
+		}
+	}
+
+	private int getMission() {
+		return 49;
+	}
+
+	private void syncMap(FileCell imageCell) {
+		Collection<MDIWindow> openMDIWindows = openManager.openMDIWindows();
+		for (MDIWindow mdiWindow : openMDIWindows) {
+			if (mdiWindow.getWidget() instanceof ResizableMapWidget) {
+				ResizableMapWidget mapWidget = (ResizableMapWidget) mdiWindow
+						.getWidget();
+				Tree tree = missionTree.getTree();
+				TreeItem missionItem = tree.getItem(0);
+				String name = imageCell.getShortName();
+				long time = Long.valueOf(name.substring(name.length() - 4));
+				mapWidget.addImageMarker(imageCell, time * 1000, this,
+						missionItem);
+				return;
+			}
+		}
+	}
+
+	private void addImage(FileCell fileCell) {
+		Tree tree = missionTree.getTree();
+		TreeItem missionItem = tree.getItem(0);
+
+		MissionCell missionCell = (MissionCell) missionItem.getUserObject();
+		missionCell.addImage(fileCell);
+
+		TreeItem imagesItem = null;
+		for (int i = 0; i < missionItem.getChildCount(); i++) {
+			TreeItem treeItem = missionItem.getChild(i);
+			Object userObject = treeItem.getUserObject();
+			if (userObject != null && userObject.equals("imagen")) {
+				imagesItem = treeItem;
+				break;
+			}
+		}
+		add(imagesItem, fileCell);
+	}
+
+	private void add(TreeItem parent, FileCell newCell) {
+		for (int i = 0; i < parent.getChildCount(); i++) {
+			TreeItem imageItem = parent.getChild(i);
+			FileCell cell = (FileCell) imageItem.getUserObject();
+			if (cell.getShortName().compareTo(newCell.getShortName()) > 0) {
+				TreeItem newItem = new TreeItem(newCell.getShortName());
+				newItem.setUserObject(newCell);
+				parent.insertItem(i, newItem);
+				return;
+			}
+		}
+		TreeItem item = new TreeItem(newCell.getShortName());
+		item.setUserObject(newCell);
+		parent.addItem(item);
+	}
+
 	private void loadMissions() {
 		databaseService.fillTree(new AsyncCallback<Vector<MissionCell>>() {
 
@@ -963,8 +1389,10 @@ public class ES3 implements EntryPoint {
 
 			@Override
 			public void onSuccess(Vector<MissionCell> missions) {
-				MissionTree missionTree = new MissionTree(missions,
-						handlerManager);
+				if (missionTree != null) {
+					westPanel.remove(missionTree);
+				}
+				missionTree = new MissionTree(missions, handlerManager);
 				westPanel.add(missionTree);
 			}
 

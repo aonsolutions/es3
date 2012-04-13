@@ -1,7 +1,11 @@
 package com.esferalia.es3.demo.server.directory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -12,10 +16,10 @@ import org.apache.commons.io.FileUtils;
 public class DirectoryManager {
 	
 	// FIXME Determinar un path para las pruebas
-	private final String BASE_PATH = "/srv/www/lighttpd/es3/mission/";
+	public static final String BASE_PATH = "/srv/www/lighttpd/es3/mission/";
 			// "C:\\workspace\\ES3\\src\\com\\esferalia\\es3\\demo\\public\\mission\\";
 			// "/srv/www/lighttpd/es3/mission/";
-	private final String TEMP_DIR = "/srv/www/lighttpd/es3/temp/";
+	public static final String TEMP_DIR = "/srv/www/lighttpd/es3/temp/";
 			// "C:\\temp\\";
 			// "/srv/www/lighttpd/es3/temp/";
 	
@@ -113,9 +117,9 @@ public class DirectoryManager {
 			dir.mkdirs();
 		
 		// Mover el archivo a otro directorio
-		boolean moved = archivo.renameTo(new java.io.File(dir, Integer.toString(file.getId()) + extension));
-		if (!moved)
-			throw new IOException("No se ha podido mover el archivo");
+		File newFile = new java.io.File(dir, Integer.toString(file.getId()) + extension);
+		copy(archivo, newFile);
+		
 	}
 	
 	public void deleteFile(com.esferalia.es3.demo.client.dto.File file) throws IOException{
@@ -141,6 +145,17 @@ public class DirectoryManager {
 				FileUtils.deleteDirectory(dir);
 			}
 		}
+	}
+	
+	private static void copy(File src, File target) throws IOException{
+		InputStream input = new FileInputStream(src);
+		OutputStream out = new FileOutputStream(target);
+		byte buffer [] = new byte [1024];
+		int read = -1;
+		while ( ( read = input.read(buffer) ) != -1 ) 
+			out.write(buffer,0, read);
+		input.close();
+		out.close();
 	}
 	
 }
