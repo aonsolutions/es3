@@ -10,4 +10,9 @@ public class Clip
     {
         // Required for JavaScriptObject
     }
+
+    public final native String getCompleteUrl()
+    /*-{
+        return this.completeUrl;
+    }-*/;
 }

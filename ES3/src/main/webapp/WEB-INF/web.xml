@@ -56,4 +56,13 @@
   	<url-pattern>/es3/image/*</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+  	<servlet-name>CaptureServlet</servlet-name>
+  	<servlet-class>com.esferalia.es3.demo.servlet.CaptureServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>CaptureServlet</servlet-name>
+  	<url-pattern>/es3/capture/*</url-pattern>
+  </servlet-mapping>
+
 </web-app>

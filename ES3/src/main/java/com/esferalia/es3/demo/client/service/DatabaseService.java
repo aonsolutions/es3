@@ -20,7 +20,7 @@ public interface DatabaseService extends RemoteService {
 
 	void insertMission(Mission mission) throws DatabaseException, DirectoryException;
 
-	void insertFile(File file) throws DatabaseException, DirectoryException;
+	File insertFile(File file) throws DatabaseException, DirectoryException;
 
 	Mission selectMission(Integer integer) throws DatabaseException;
 

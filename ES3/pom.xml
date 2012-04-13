@@ -19,23 +19,10 @@
 	<build>
 		<plugins>
 
-                        <!-- plugin>
-                                <groupId>org.codehaus.mojo</groupId>
-                                <artifactId>buildnumber-maven-plugin</artifactId>
-                                <version>1.0-beta-4</version>
-                                <executions>
-                                        <execution>
-                                                <phase>validate</phase>
-                                                <goals>
-                                                        <goal>create</goal>
-                                                </goals>
-                                        </execution>
-                                </executions>
-                                <configuration>
-                                        <doCheck>false</doCheck>
-                                        <doUpdate>false</doUpdate>
-                                </configuration>
-                        </plugin-->
+			<!-- plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>buildnumber-maven-plugin</artifactId> 
+				<version>1.0-beta-4</version> <executions> <execution> <phase>validate</phase> 
+				<goals> <goal>create</goal> </goals> </execution> </executions> <configuration> 
+				<doCheck>false</doCheck> <doUpdate>false</doUpdate> </configuration> </plugin -->
 
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -51,13 +38,13 @@
 					</execution>
 				</executions>
 			</plugin>
-<plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>tomcat-maven-plugin</artifactId>
-        <configuration>
-		<url>http://192.168.2.107:8080/manager</url>
-        </configuration>
-</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>tomcat-maven-plugin</artifactId>
+				<configuration>
+					<url>http://192.168.2.107:8080/manager</url>
+				</configuration>
+			</plugin>
 
 		</plugins>
 	</build>
@@ -76,6 +63,12 @@
 				<updatePolicy>never</updatePolicy>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>xuggleRepository</id>
+			<name>Xuggle Repository</name>
+			<url>http://xuggle.googlecode.com/svn/trunk/repo/share/java</url>
+		</repository>
+
 	</repositories>
 
 	<dependencies>
@@ -84,21 +77,21 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.0.1</version>
 			<scope>compile</scope>
-		</dependency>		
+		</dependency>
 
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.2.2</version>
 			<scope>compile</scope>
-		</dependency>		
+		</dependency>
 
 		<dependency>
 			<groupId>fr.hd3d</groupId>
 			<artifactId>html5-video</artifactId>
 			<version>1.0</version>
 			<scope>compile</scope>
-		</dependency>		
+		</dependency>
 
 		<dependency>
 			<groupId>com.google.gwt</groupId>
@@ -120,20 +113,27 @@
 		</dependency>
 
 		<dependency>
-                        <groupId>com.google.code.gwt-dnd</groupId>
-                       	<artifactId>gwt-dnd</artifactId>
-                        <version>3.2.1</version>
-                       	<scope>compile</scope>
-                </dependency>
+			<groupId>com.google.code.gwt-dnd</groupId>
+			<artifactId>gwt-dnd</artifactId>
+			<version>3.2.1</version>
+			<scope>compile</scope>
+		</dependency>
 
-               <dependency>
-                       	<groupId>mysql</groupId>
-                        <artifactId>mysql-connector-java</artifactId>
-                        <version>5.1.18</version>
-                        <scope>runtime</scope>
-                </dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.18</version>
+			<scope>runtime</scope>
+		</dependency>
 
-
+		<dependency>
+		   <groupId>xuggle</groupId>
+		   <artifactId>xuggle-xuggler</artifactId>
+		   <version>5.4</version>
+		   <scope>compile</scope>
+		</dependency>
+   
+   
 	</dependencies>
 
 	<profiles>

@@ -284,9 +284,14 @@ public class CustomDialog extends PopupPanel implements
 
 	@Override
 	public void setWidget(Widget w) {
-		simplePanel.add(w);
+		simplePanel.setWidget(w);
 	}
-
+	
+	@Override
+	public Widget getWidget() {
+		return simplePanel.getWidget();
+	}
+	
 	public String getCaption() {
 		return dialogBar.getCaption();
 	}
